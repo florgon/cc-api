@@ -4,12 +4,16 @@
     Provides full application via 'create()' that returns ready to be runned application.
 """
 
+from os.path import exists as path_exists
 from flask import Flask
-
+from flask_sqlalchemy import SQLAlchemy
 
 __author__ = "Kirill Zhosul"
 __copyright = "(c) 2022 Kirill Zhosul"
 __license__ = "MIT"
+
+# Global objects.
+db = SQLAlchemy()
 
 
 def create(name=None) -> Flask:
@@ -20,7 +24,13 @@ def create(name=None) -> Flask:
     """
     app = Flask(name if name else __name__)
 
+    # Config.
     from . import config
     app.config.from_object(config.ConfigDevelopment)
+
+    # Database.
+    db.init_app(app)
+    if not path_exists(app.config.get("SQLALCHEMY_DATABASE_FILEPATH")):
+        db.create_all(app=app)
 
     return app
