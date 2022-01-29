@@ -34,4 +34,8 @@ def create(name=None) -> Flask:
     if not path_exists(app.config.get("SQLALCHEMY_DATABASE_FILEPATH")):
         db.create_all(app=app)
 
+    # Views.
+    from . import views
+    views.register(app)
+
     return app
