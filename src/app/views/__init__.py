@@ -10,7 +10,7 @@ from flask import Flask
 def register(app: Flask) -> NoReturn:
     """
     Regisgers all views blueprints.
-    :param app: Flask application.
+    :param: app Flask application.
     :return:
     """
     from . import root
