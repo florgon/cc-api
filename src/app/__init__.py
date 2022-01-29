@@ -29,6 +29,7 @@ def create(name=None) -> Flask:
     app.config.from_object(config.ConfigDevelopment)
 
     # Database.
+    from . import models
     db.init_app(app)
     if not path_exists(app.config.get("SQLALCHEMY_DATABASE_FILEPATH")):
         db.create_all(app=app)
