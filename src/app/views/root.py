@@ -37,4 +37,14 @@ def root_add():
 @bp_root.route("/<url_id>", methods=["GET"])
 def root_get(url_id):
     url = Url.query.filter_by(id=url_id).first_or_404()
+
+    url.views += 1
+    db.session.commit()
+
     return redirect(url.redirect, 303)
+
+@bp_root.route("/stats/<url_id>", methods=["GET"])
+def root_stats(url_id):
+    url = Url.query.filter_by(id=url_id).first_or_404()
+
+    return str(url.views)
