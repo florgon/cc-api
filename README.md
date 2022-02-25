@@ -1,5 +1,13 @@
-# web-url-shortener
-Simple URL shortener website written using Flask.
+# URL Shortener.
+Simple URL shortener website (API + Page) written using FastAPI.
 
-TBD. Project is under development
-(Add design, document).
+# How to run.
+```commandline
+pip install -r requirements.txt
+cd src 
+uvicorn app:app
+```
+or for development:
+```commandline
+uvicorn app:app --reload --port 80
+```

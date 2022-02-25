@@ -43,6 +43,7 @@ def root_get(url_id):
 
     return redirect(url.redirect, 303)
 
+
 @bp_root.route("/stats/<url_id>", methods=["GET"])
 def root_stats(url_id):
     url = Url.query.filter_by(id=url_id).first_or_404()
