@@ -10,14 +10,11 @@ import os
 
 # Base config.
 class Config(object):
-    SECRET_KEY = "very-strong-secret-key-for-hackers"
+    SECRET_KEY = "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t"
     FLASK_SECRET_KEY = SECRET_KEY
     DEBUG = False
 
-    SQLALCHEMY_DATABASE_FILENAME = "database\\database.db"
-    SQLALCHEMY_DATABASE_FILEPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                                SQLALCHEMY_DATABASE_FILENAME)
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{SQLALCHEMY_DATABASE_FILEPATH}"
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 

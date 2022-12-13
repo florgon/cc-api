@@ -1,0 +1,64 @@
+# Python + Postgres + PgBouncer setup for Docker-Compose.
+# Warning: To setup, replace `app-hostname` to your required application hostname.
+# Warning: To setup, include your server Dockerfile along with this compose file.
+# Warning: To setup, rename to `docker-compose.yml` and do `docker-compose up -d --build`
+# Warning: To setup, your server host should expose {80} port that will be mapped to {.env>COMPOSE_EXPOSED_PORT}
+# Warning: To setup, edit {.env>COMPOSE_PROJECT_NAME} to your application project hostname.
+version: "3"
+
+# Docker volume to have database stored on host machine.
+volumes:
+  db:
+    driver: local
+
+services:
+  database:
+    # PostgreSQL.
+    image: postgres:14-alpine
+    hostname: app-hostname
+    restart: always
+    volumes:
+      - ../db:/var/lib/postgresql/data
+    env_file:
+      - .database.env
+    networks:
+      - app-hostname
+    command:
+      # TODO: Database config should be:
+      # "-c" "-config-file=/etc/postgresql/postgresql.conf"
+      - "postgres"
+      - "-c" # Max connection limit for database.
+      - "max_connections=1000" # SHOW max_connections;
+      - "-c" # Buffer size for database bufferization.
+      - "shared_buffers=128MB" # SHOW shared_buffers;
+  database-poller:
+    image: edoburu/pgbouncer
+    env_file:
+      - .database.env
+    depends_on:
+      - database
+    networks:
+      - app-hostname
+  server:
+    hostname: app-hostname
+    restart: always
+    env_file:
+      - .server.env
+    volumes:
+      - ./:/srv
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+      - database-poller
+    links:
+      - database
+    networks:
+      - app-hostname
+    # Build server!
+    # Requires Dockerfile!
+    build: .
+
+# Setup docker network for the internal network.
+networks:
+  app-hostname:

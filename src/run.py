@@ -3,8 +3,14 @@
     URL shortener application runner.
     Runs the Flask application.
 """
+from app.config import ConfigDevelopment
+from flask import Flask
 
-import app
+def create_app() -> Flask:
+    app = Flask(__name__)
+    app.config.from_object(ConfigDevelopment)
 
-if __name__ == "__main__":
-    app.create().run(debug=True, port=80)
+    from app.views.utils import bp_utils
+    app.register_blueprint(bp_utils)
+
+    return app
