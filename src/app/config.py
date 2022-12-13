@@ -17,6 +17,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    JSON_SORT_KEYS=False
+
 
 # Config, that should be used for development purposes.
 class ConfigDevelopment(Config):
