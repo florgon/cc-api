@@ -18,7 +18,7 @@ COPY . /srv/
 
 # Run project after building.
 # -> Run simple script.
-CMD ["python", "-m", "flask", "--app", "run", "run", "-h", "0.0.0.0", "-p", "5000"]
+CMD ["gunicorn", "-w", "4", "--reload", "-b", "0.0.0.0:80", "run:app"]
 # -> Django project test server.
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:80"]
 # -> No Gunicorn / Uvicorn here because it is more complex problem!

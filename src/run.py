@@ -14,3 +14,7 @@ def create_app() -> Flask:
     app.register_blueprint(bp_utils)
 
     return app
+
+
+app = create_app()
+

@@ -3,8 +3,7 @@
 """
 from time import time
 
-from flask import Blueprint, jsonify
-
+from flask import Blueprint
 from app.services.response import api_success
 
 bp_utils = Blueprint("utils", __name__)
