@@ -26,7 +26,7 @@ def api_error(
     code, status = api_code.value
     
     response = make_response(json.dumps({
-        "v": "0.0.1",
+        "v": API_VERSION,
         "error": {
             "message": message,
             "code": code,
