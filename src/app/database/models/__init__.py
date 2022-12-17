@@ -1,6 +1,8 @@
 #!env/bin/python
 """
-    URL shortener database models module.
+    ORM models.
 """
 
 from . import url
+
+__all__ = ["url"]

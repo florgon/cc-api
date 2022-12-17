@@ -24,16 +24,20 @@ def api_error(
         headers = {}
 
     code, status = api_code.value
-    
-    response = make_response(json.dumps({
-        "v": API_VERSION,
-        "error": {
-            "message": message,
-            "code": code,
-            "status": status,
-            **data,
-        },
-    }))
+
+    response = make_response(
+        json.dumps(
+            {
+                "v": API_VERSION,
+                "error": {
+                    "message": message,
+                    "code": code,
+                    "status": status,
+                    **data,
+                },
+            }
+        )
+    )
     response.headers.extend(headers)
     response.headers["Content-Type"] = "application/json"
     response.status = status

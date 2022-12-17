@@ -1,9 +1,3 @@
-# Python + Postgres + PgBouncer setup for Docker-Compose.
-# Warning: To setup, replace `cc-api` to your required application hostname.
-# Warning: To setup, include your server Dockerfile along with this compose file.
-# Warning: To setup, rename to `docker-compose.yml` and do `docker-compose up -d --build`
-# Warning: To setup, your server host should expose {80} port that will be mapped to {.env>COMPOSE_EXPOSED_PORT}
-# Warning: To setup, edit {.env>COMPOSE_PROJECT_NAME} to your application project hostname.
 version: "3"
 
 # Docker volume to have database stored on host machine.
@@ -47,7 +41,7 @@ services:
     volumes:
       - ./:/srv
     ports:
-      - "5000:80"
+      - "${COMPOSE_EXPOSED_PORT}:80"
     depends_on:
       - database
       - database-poller
@@ -55,8 +49,6 @@ services:
       - database
     networks:
       - cc-api
-    # Build server!
-    # Requires Dockerfile!
     build: .
 
 # Setup docker network for the internal network.

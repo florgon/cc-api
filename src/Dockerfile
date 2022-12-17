@@ -17,8 +17,4 @@ RUN pip install --upgrade pip && \
 COPY . /srv/
 
 # Run project after building.
-# -> Run simple script.
-CMD ["gunicorn", "-w", "4", "--reload", "-b", "0.0.0.0:80", "run:app"]
-# -> Django project test server.
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:80"]
-# -> No Gunicorn / Uvicorn here because it is more complex problem!
+CMD ["gunicorn", "-w", "4", "--reload", "-b", "0.0.0.0:80", "app.app:app"]

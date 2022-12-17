@@ -3,15 +3,14 @@
     URL shortener views.
 """
 
-from typing import NoReturn
 from flask import Flask
 
 
-def register(app: Flask) -> NoReturn:
+def register(app: Flask) -> None:
     """
-    Regisgers all views blueprints.
+    Registers all views blueprints.
     :param: app Flask application.
-    :return:
     """
     from . import root
+
     app.register_blueprint(root.bp_root)
