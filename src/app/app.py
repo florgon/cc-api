@@ -5,6 +5,7 @@
 """
 
 from flask import Flask
+from flask_cors import CORS
 
 
 def _create_app() -> Flask:
@@ -12,6 +13,7 @@ def _create_app() -> Flask:
     Creates initialized Flask Application.
     """
     app = Flask(import_name=__name__)
+    cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
     from app.config import ConfigDevelopment
 
