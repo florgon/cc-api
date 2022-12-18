@@ -1,9 +1,9 @@
 """
     URL shortener url application views for url model.
 """
-from time import time
+from datetime import datetime
 
-from flask import Blueprint, request
+from flask import Blueprint, request, redirect
 from app.serializers.url import serialize_url
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
@@ -25,3 +25,21 @@ def create_short_url():
     url = crud.url.create_url(db=db, redirect_url=long_url)
 
     return api_success(serialize_url(url))
+
+@bp_url.route("/<hash>/open", methods=["GET"])
+def open_short_url(hash: str):
+    """
+    Redirects user to long redirect url.
+    """
+    short_url = crud.url.get_by_hash(db=db, hash=hash)
+    if short_url is None:
+        return api_error(
+            ApiErrorCode.API_ITEM_NOT_FOUND, "hash is invalid!"
+        )
+
+    if short_url.expiration_date <= datetime.now():
+        return api_error(
+            ApiErrorCode.API_TOKEN_EXPIRED, "hash is expired!"
+        )
+
+    return redirect(short_url.redirect)

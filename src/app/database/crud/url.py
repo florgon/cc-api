@@ -41,5 +41,5 @@ def get_by_hash(db: SQLAlchemy, hash: str) -> Url | None:
     if len(url_ids) != 1:
         return None
     url_id = url_ids[0]
-    url = Url.query.filter(id=url_id).first()
+    url = Url.query.filter_by(id=url_id).first()
     return url
