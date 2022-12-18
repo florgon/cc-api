@@ -20,7 +20,7 @@ class Url(db.Model):
     views = db.Column(db.Integer, nullable=False, default=0)
     redirect = db.Column(db.String, nullable=False)
     expiration_date = db.Column(
-            db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=14)
+        db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=14)
     )
 
     @property

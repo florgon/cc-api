@@ -1,7 +1,9 @@
 """
     Url CRUD utils for the database.
 """
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
+from hashids import Hashids
 
 from app.database.models.url import Url
 
@@ -34,4 +36,10 @@ def get_by_hash(db: SQLAlchemy, hash: str) -> Url | None:
     :return: url object
     :rtype: Url or None if hash is invalid
     """
-    return None
+    hashids = Hashids(salt=current_app.config["HASHIDS_SALT"])
+    url_ids: tuple[int] = hashids.decode(hash)
+    if len(url_ids) != 1:
+        return None
+    url_id = url_ids[0]
+    url = Url.query.filter(id=url_id).first()
+    return url
