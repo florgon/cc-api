@@ -16,6 +16,8 @@ class Config:
 
     JSON_SORT_KEYS = False
 
+    HASHIDS_SALT = os.getenv("HASHIDS_SALT", "Florgon CC long salt")
+
 
 # Config, that should be used for development purposes.
 class ConfigDevelopment(Config):

@@ -22,8 +22,10 @@ def _create_app() -> Flask:
     init_with_app(app)
 
     from app.views.utils import bp_utils
+    from app.views.url import bp_url
 
-    app.register_blueprint(bp_utils)
+    app.register_blueprint(bp_utils, url_prefix="/utils")
+    app.register_blueprint(bp_url, url_prefix="/url")
 
     return app
 

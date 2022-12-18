@@ -41,7 +41,7 @@ services:
     volumes:
       - ./:/srv
     ports:
-      - "${COMPOSE_EXPOSED_PORT}:80"
+      - "5000:80"
     depends_on:
       - database
       - database-poller
