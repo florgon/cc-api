@@ -24,9 +24,9 @@ class Url(db.Model):
     )
 
     @property
-    def short_url(self):
+    def hash(self):
         """
         Returns short url with hash based on model id.
         """
         hashids = Hashids(salt=current_app.config["HASHIDS_SALT"])
-        return f"{request.host_url}c/{hashids.encode(self.id)}"
+        return hashids.encode(self.id)
