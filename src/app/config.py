@@ -16,7 +16,8 @@ class Config:
 
     JSON_SORT_KEYS = False
 
-    HASHIDS_SALT = os.getenv("HASHIDS_SALT", "Florgon CC long salt")
+    HASHIDS_SALT = os.getenv("HASHIDS_SALT", "gij5uy58yurhgirhigujewiohgihgdjh48ty684yu93tui3hithivhfk3kfm4khni3h4ijiojfuhug3n4ggflorgonojfikdjsigsbhduig")
+    PROXY_PREFIX = os.getenv("PROXY_PREFIX", "/v1")
 
 
 # Config, that should be used for development purposes.
