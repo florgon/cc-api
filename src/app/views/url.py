@@ -47,6 +47,27 @@ def open_short_url(hash: str):
     if short_url.expiration_date <= datetime.now():
         return api_error(
             ApiErrorCode.API_TOKEN_EXPIRED, "hash is expired!"
-        )
+        ) 
 
     return redirect(short_url.redirect)
+
+
+@bp_url.route("/<hash>/", methods=["GET"])
+def short_url_index(hash: str):
+    """
+    Short url index resource.
+    Methods:
+        GET: Returns info about short url
+    """
+    short_url = crud.url.get_by_hash(db=db, hash=hash)
+    if short_url is None:
+        return api_error(
+            ApiErrorCode.API_ITEM_NOT_FOUND, "hash is invalid!"
+        )
+
+    if short_url.expiration_date <= datetime.now():
+        return api_error(
+            ApiErrorCode.API_TOKEN_EXPIRED, "hash is expired!"
+        )
+
+    return api_success(serialize_url(short_url, include_stats=True))
