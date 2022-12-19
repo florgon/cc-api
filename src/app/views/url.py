@@ -1,6 +1,7 @@
 """
     URL shortener url application views for url model.
 """
+import re
 from datetime import datetime
 
 from flask import Blueprint, request, redirect
@@ -21,6 +22,12 @@ def create_short_url():
     long_url = request.form.get("url")
     if long_url is None or long_url == "":
         return api_error(ApiErrorCode.API_INVALID_REQUEST, "url is required!")
+
+    pattern = re.compile(r"^(https:\/\/|http:\/\/|)(\w+\.){1,3}\w{1,10}(\/.*)?$")
+    if pattern.match(long_url) is None:
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST, "url is invalid!"
+        )
 
     url = crud.url.create_url(db=db, redirect_url=long_url)
 
