@@ -16,6 +16,10 @@ def create_url(db: SQLAlchemy, redirect_url: str) -> Url:
     :return: created url object
     :rtype: Url
     """
+    if not redirect_url.startswith("http://") and not redirect_url.startswith("https://"):
+        # Add protocol for valid redirecting to an external domain
+        redirect_url = "https://" + redirect_url        
+
     url = Url(
         redirect=redirect_url,
     )
