@@ -47,3 +47,17 @@ def get_by_hash(db: SQLAlchemy, hash: str) -> Url | None:
     url_id = url_ids[0]
     url = Url.query.filter_by(id=url_id).first()
     return url
+
+def add_view(db: SQLAlchemy, url: Url) -> Url:
+    """
+    Adds view to url stats before redirecting.
+    :param SQLAlchemy db: database object
+    :param Url url: url object
+    :return: updated url object
+    :rtype: Url
+    """
+    url.views += 1
+    db.session.commit()
+    db.session.refresh(url)
+
+    return url

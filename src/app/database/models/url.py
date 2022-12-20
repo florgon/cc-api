@@ -24,9 +24,18 @@ class Url(db.Model):
     )
 
     @property
-    def hash(self):
+    def hash(self) -> str:
         """
-        Returns short url with hash based on model id.
+        Returns hash based on model id.
+        :rtype: str
         """
         hashids = Hashids(salt=current_app.config["HASHIDS_SALT"])
         return hashids.encode(self.id)
+
+
+    def is_expired(self) -> bool:
+        """
+        Checks if url is expired.
+        :rtype: bool
+        """
+        return self.expiration_date <= datetime.now()
