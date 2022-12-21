@@ -7,7 +7,7 @@ def serialize_url(url: Url, include_stats=False) -> dict[str, Any]:
         "id": url.id,
         "redirect_url": url.redirect,
         "hash": url.hash,
-        "expire_at_timestamp": url.expiration_date.timestamp(),
+        "expires_at": url.expiration_date.timestamp(),
     }
 
     if include_stats:
