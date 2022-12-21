@@ -12,7 +12,7 @@ def validate_url(url: str | None) -> None:
     :param str|None url: long url to validate
     :raises ApiErrorException: when url is invalid
     """
-    if url is None or url == "":
+    if not url:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is required!")
 
     pattern = re.compile(r"^(https:\/\/|http:\/\/|)([\w-]+\.){1,3}\w{1,10}(\/.*)?$", flags=re.U)
