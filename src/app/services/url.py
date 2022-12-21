@@ -30,10 +30,10 @@ def validate_short_url(url: Url | None) -> None:
     """
     if url is None:
         raise ApiErrorException(
-            ApiErrorCode.API_ITEM_NOT_FOUND, "hash is invalid!"
+            ApiErrorCode.API_ITEM_NOT_FOUND, "url hash is invalid/not specified"
         )
 
     if url.is_expired():
         raise ApiErrorException(
-            ApiErrorCode.API_FORBIDDEN, "hash is expired!"
+            ApiErrorCode.API_FORBIDDEN, "url is expired!"
         )

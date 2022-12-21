@@ -61,3 +61,12 @@ def add_view(db: SQLAlchemy, url: Url) -> Url:
     db.session.refresh(url)
 
     return url
+
+def delete(db: SQLAlchemy, url: Url) -> None:
+    """
+    Deletes url and views.
+    :param SQLAlchemy db: database object
+    :param Url url: url object
+    """
+    db.session.delete(url)
+    db.session.commit()
