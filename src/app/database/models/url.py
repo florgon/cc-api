@@ -30,7 +30,7 @@ class Url(db.Model):
         Returns hash based on model id.
         :rtype: str
         """
-        hashids = Hashids(salt=current_app.config["HASHIDS_SALT"])
+        hashids = Hashids(salt=current_app.config["HASHIDS_SALT"], min_length=6)
         return hashids.encode(self.id)
 
 

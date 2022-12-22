@@ -43,7 +43,7 @@ def get_by_hash(hash: str) -> Url | None:
     :return: url object
     :rtype: Url or None if hash is invalid
     """
-    hashids = Hashids(salt=current_app.config["HASHIDS_SALT"])
+    hashids = Hashids(salt=current_app.config["HASHIDS_SALT"], min_length=6)
     url_ids: tuple[int] = hashids.decode(hash)
     if len(url_ids) != 1:
         return None

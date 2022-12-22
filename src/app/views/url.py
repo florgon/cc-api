@@ -1,7 +1,7 @@
 """
     URL shortener url application views for url model.
 """
-import re
+import pydantic
 from datetime import datetime
 
 from flask import Blueprint, Response, request, redirect, abort
@@ -22,9 +22,11 @@ def create_short_url():
     """
 
     long_url = request.form.get("url", "")
-    validate_url(long_url) 
+    validate_url(long_url)
+    stats_is_public = request.form.get("stats_is_public", False,
+                                        type=lambda i: pydantic.parse_obj_as(bool, i))
 
-    url = crud.url.create_url(db=db, redirect_url=long_url)
+    url = crud.url.create_url(db=db, redirect_url=long_url, stats_is_public=stats_is_public)
 
     return api_success(serialize_url(url))
 
