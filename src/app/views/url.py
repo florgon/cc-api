@@ -33,7 +33,7 @@ def open_short_url(hash: str):
     """
     Redirects user to long redirect url.
     """
-    short_url = crud.url.get_by_hash(db=db, hash=hash)
+    short_url = crud.url.get_by_hash(hash=hash)
     validate_short_url(short_url)
     
     crud.url.add_view(db=db, url=short_url)
@@ -49,7 +49,7 @@ def short_url_index(hash: str):
         GET: Returns info about short url
         DELETE: Deletes url
     """
-    short_url = crud.url.get_by_hash(db=db, hash=hash)
+    short_url = crud.url.get_by_hash(hash=hash)
     validate_short_url(short_url) 
     if request.method == "GET":
         return api_success(serialize_url(short_url, include_stats=True))

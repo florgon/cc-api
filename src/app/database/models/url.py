@@ -22,6 +22,7 @@ class Url(db.Model):
     expiration_date = db.Column(
         db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=14)
     )
+    stats_is_public = db.Column(db.Boolean, default=False)
 
     @property
     def hash(self) -> str:
