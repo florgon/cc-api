@@ -1,6 +1,7 @@
 """
     URL shortener url application views for url model.
 """
+from urllib import response
 import pydantic
 from datetime import datetime
 from io import BytesIO
@@ -45,25 +46,40 @@ def generate_qr_code_for_url(hash: str):
     TODO: Redirect to open handler, not directly to the target url.
     TODO: Fix caching to not generate new QR code every time.
     TODO: Custom logo for QR.
+    TODO: Allow to pass scale.
     """
+    response_as = request.args.get("as", "svg")
     short_url = crud.url.get_by_hash(hash=hash)
     validate_short_url(short_url)
+    if response_as not in ("svg", "txt", "png"):
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Expected `as` to be `svg`, `png` or `txt`!",
+        )
 
     # Create QR Code from redirect to.
     qr_code = pyqrcode.create(short_url.redirect)
 
-    # Export QR as SVG to the stream.
-    qr_code_stream = BytesIO()
-    qr_code.svg(qr_code_stream, scale=3)
+    # Export QR to the stream or pass directly.
+    qr_code_stream = BytesIO() if response_as != "txt" else None
+    if response_as == "svg":
+        qr_code.svg(qr_code_stream, scale=3)
+    elif response_as == "png":
+        qr_code.png(qr_code_stream, scale=3)
 
-    # Headers to not cache image.
-    headers_no_cache = {
-        "Content-Type": "image/svg+xml",
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
-    }
-    return qr_code_stream.getvalue(), 200, headers_no_cache
+    if response_as in ("svg", "png"):
+        # Headers to not cache image.
+        headers_no_cache = {
+            "Content-Type": "image/svg+xml" if response_as == "svg" else "image/png",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+            "Content-Length": str(qr_code_stream.getbuffer().nbytes),
+        }
+        return qr_code_stream.getvalue(), 200, headers_no_cache
+    else:
+        # Plain text.
+        return qr_code.text()
 
 
 @bp_url.route("/<hash>/open", methods=["GET"])
