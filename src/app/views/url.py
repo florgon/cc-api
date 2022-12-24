@@ -63,7 +63,7 @@ def generate_qr_code_for_url(hash: str):
         "Pragma": "no-cache",
         "Expires": "0",
     }
-    return qr_code.getvalue(), 200, headers_no_cache
+    return qr_code_stream.getvalue(), 200, headers_no_cache
 
 
 @bp_url.route("/<hash>/open", methods=["GET"])
