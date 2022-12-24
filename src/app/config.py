@@ -14,8 +14,6 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    JSON_SORT_KEYS = False
-
     HASHIDS_SALT = os.getenv("HASHIDS_SALT", "gij5uy58yurhgirhigujewiohgihgdjh48ty684yu93tui3hithivhfk3kfm4khni3h4ijiojfuhug3n4ggflorgonojfikdjsigsbhduig")
     PROXY_PREFIX = os.getenv("PROXY_PREFIX", "/v1")
 

@@ -18,6 +18,7 @@ def _create_app() -> Flask:
     from app.config import ConfigDevelopment
 
     app.config.from_object(ConfigDevelopment)
+    app.json.sort_keys = False
 
     from app.database.core import init_with_app
 
