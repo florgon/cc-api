@@ -23,6 +23,7 @@ class Url(db.Model):
         db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=14)
     )
     stats_is_public = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
 
     @property
     def hash(self) -> str:

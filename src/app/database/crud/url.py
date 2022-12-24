@@ -73,5 +73,5 @@ def delete(db: SQLAlchemy, url: Url) -> None:
     :param SQLAlchemy db: database object
     :param Url url: url object
     """
-    db.session.delete(url)
+    url.is_deleted = True
     db.session.commit()

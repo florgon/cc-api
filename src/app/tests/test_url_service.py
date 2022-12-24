@@ -61,7 +61,7 @@ class TestValidateShortUrl:
     def test_normal_url(self):
         url = Url(
             redirect="https://florgon.space",
-            expiration_date=datetime.utcnow() + timedelta(days=1)
+            expiration_date=datetime.utcnow() + timedelta(days=1),
         )
         assert validate_short_url(url=url) == None 
 
