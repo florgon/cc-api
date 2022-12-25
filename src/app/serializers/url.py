@@ -18,8 +18,7 @@ def serialize_url(url: Url, include_stats=False) -> dict[str, Any]:
         "is_deleted": url.is_deleted,
         "_links": {
             "qr": {
-                "href": request.host_url[:-1]
-                + url_for("urls.generate_qr_code_for_url", hash=url.hash)
+                "href": url_for("urls.generate_qr_code_for_url", hash=url.hash, _external=True, _scheme="https")
             },
         },
     }
