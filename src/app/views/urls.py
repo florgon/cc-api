@@ -60,15 +60,15 @@ def short_url_index(hash: str):
 
     if request.method == "DELETE":
         crud.url.delete(db=db, url=short_url)
+        return Response(status=204)
 
     if request.method == "PATCH":
         return api_error(
             ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
         )
 
-    response_status = 200 if request.method == "GET" else 204
     return api_success(
-        serialize_url(short_url, include_stats=True), http_status=response_status
+        serialize_url(short_url, include_stats=True)
     )
 
 
