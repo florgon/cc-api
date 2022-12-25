@@ -41,7 +41,6 @@ def generate_qr_code_for_url(hash: str):
     """
     Generates QR code image for hash url.
 
-    TODO: Redirect to open handler, not directly to the target url.
     TODO: Fix caching to not generate new QR code every time.
     TODO: Custom logo for QR.
     """
@@ -59,18 +58,27 @@ def generate_qr_code_for_url(hash: str):
 
     # Export QR to the stream or pass directly.
     scale = request.args.get("scale", "3")
-    if not scale.isdigit():
+    if not scale.isdigit() or scale == "0":
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
             "`scale` argument must be a positive integer number!"
         )
     scale = int(scale)
 
+    quiet_zone = request.args.get("quiet_zone", "4")
+    if not quiet_zone.isdigit():
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`quiet_zone` argument must be a positive integer number or 0!"
+        )
+    quiet_zone = int(quiet_zone)
+
+
     qr_code_stream = BytesIO() if response_as != "txt" else None
     if response_as == "svg":
-        qr_code.svg(qr_code_stream, scale=scale)
+        qr_code.svg(qr_code_stream, scale=scale, quiet_zone=quiet_zone)
     elif response_as == "png":
-        qr_code.png(qr_code_stream, scale=scale)
+            qr_code.png(qr_code_stream, scale=scale, quiet_zone=quiet_zone)
 
     if qr_code_stream is not None:
         # Headers to not cache image.
