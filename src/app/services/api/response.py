@@ -45,6 +45,6 @@ def api_error(
     return response
 
 
-def api_success(data: dict) -> tuple[Response, int]:
+def api_success(data: dict, *, http_status: int = 200) -> tuple[Response, int]:
     """Returns API success response."""
-    return jsonify({"v": API_VERSION, "success": {**data}}), 200
+    return jsonify({"v": API_VERSION, "success": data}), http_status
