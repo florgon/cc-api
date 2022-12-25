@@ -13,8 +13,9 @@ class UrlView(db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
+    url_id = db.Column(db.Integer, db.ForeignKey("url.id"), nullable=False)
     ip = db.Column(db.String(15), nullable=False)
-    user_agent_id = db.Column(db.Integer, db.ForeignKey("user_agent.id"), nullable=False)
+    user_agent_id = db.Column(
+        db.Integer, db.ForeignKey("user_agent.id"), nullable=False
+    )
     view_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-
-

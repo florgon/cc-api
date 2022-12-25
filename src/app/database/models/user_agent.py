@@ -9,7 +9,9 @@ class UserAgent(db.Model):
     """
     UserAgent model class.
     """
-    
+
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     value = db.Column(db.String(250), nullable=False)
-    url_views = db.relationship("UrlView", backref="user_agent", lazy="dynamic", uselist=True)
+    url_views = db.relationship(
+        "UrlView", backref="user_agent", lazy="dynamic", uselist=True
+    )

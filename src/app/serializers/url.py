@@ -25,6 +25,7 @@ def serialize_url(url: Url, include_stats=False) -> dict[str, Any]:
     }
 
     if include_stats:
-        serialized_url["views"] = url.views
+        # TODO: Stats (url) displaying
+        ...
 
     return {"url": serialized_url}

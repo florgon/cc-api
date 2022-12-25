@@ -67,9 +67,7 @@ def short_url_index(hash: str):
             ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
         )
 
-    return api_success(
-        serialize_url(short_url, include_stats=True)
-    )
+    return api_success(serialize_url(short_url, include_stats=True))
 
 
 @bp_urls.route("/<hash>/qr", methods=["GET"])

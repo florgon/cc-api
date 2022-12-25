@@ -3,6 +3,7 @@
 """
 from flask import url_for
 
+
 def test_read_utils_get_server_time(app, client):
     with app.test_request_context():
         response = client.get(url_for("utils.get_server_time"))
