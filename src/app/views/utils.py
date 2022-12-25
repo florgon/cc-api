@@ -1,10 +1,11 @@
 """
     URL shortener application utils views.
 """
+
 from time import time
 
 from flask import Blueprint
-from app.services.api.errors import ApiErrorCode, ApiErrorException
+
 from app.services.api.response import api_success
 
 bp_utils = Blueprint("utils", __name__)
