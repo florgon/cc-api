@@ -2,6 +2,7 @@
     Handlers for exceptions in app.
 """
 from flask import Blueprint
+from werkzeug.exceptions import HTTPException
 
 from app.services.api.errors import ApiErrorException
 from app.services.api.response import api_error, ApiErrorCode
@@ -17,11 +18,15 @@ def api_error_exception_to_response(e: ApiErrorException):
     return api_error(e.api_code, e.message, e.data)
 
 
-@bp_handlers.app_errorhandler(500)
-def http_500_error_handler(_):
+@bp_handlers.app_errorhandler(Exception)
+def http_500_error_handler(e: Exception):
     """
     HTTP 500 status code error handler.
     """
+    # Pass directly as http direct exception.
+    if isinstance(e, HTTPException):
+        return e
+
     return api_error(ApiErrorCode.API_INTERNAL_SERVER_ERROR, "Internal server error!")
 
 
