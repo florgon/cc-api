@@ -17,7 +17,7 @@ from app.services.url import validate_short_url, validate_url
 bp_urls = Blueprint("urls", __name__)
 
 
-@bp_urls.route("/", methods=["POST", "GET", "PATCH"])
+@bp_urls.route("/", methods=["POST", "GET"])
 def urls_index():
     """
     URLs index,
@@ -41,29 +41,30 @@ def urls_index():
 
         return api_success(serialize_url(url))
 
-    if request.method == "PATCH":
-        return api_error(
-            ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
-        )
-
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED, "Listing urls is not implemented yet!"
     )
 
 
-@bp_urls.route("/<hash>/", methods=["GET", "DELETE"])
+@bp_urls.route("/<hash>/", methods=["GET", "DELETE", "PATCH"])
 def short_url_index(hash: str):
     """
     Short url index resource.
     Methods:
         GET: Returns info about short url
         DELETE: Deletes url
+        PATCH: Updates url
     """
-    short_url = crud.url.get_by_hash(hash=hash, only_active=True)
+    short_url = crud.url.get_by_hash(hash=hash)
     validate_short_url(short_url)
 
     if request.method == "DELETE":
         crud.url.delete(db=db, url=short_url)
+
+    if request.method == "PATCH":
+        return api_error(
+            ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
+        )
 
     response_status = 200 if request.method == "GET" else 204
     return api_success(
@@ -136,7 +137,7 @@ def open_short_url(hash: str):
     """
     Redirects user to long redirect url.
     """
-    short_url = crud.url.get_by_hash(hash=hash, only_active=True)
+    short_url = crud.url.get_by_hash(hash=hash)
     validate_short_url(short_url)
 
     crud.url.add_view(db=db, url=short_url)
