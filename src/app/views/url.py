@@ -1,12 +1,10 @@
 """
     URL shortener url application views for url model.
 """
-from urllib import response
 import pydantic
-from datetime import datetime
 from io import BytesIO
 
-from flask import Blueprint, Response, request, redirect, abort
+from flask import Blueprint, Response, request, redirect, url_for
 import pyqrcode
 
 
@@ -57,7 +55,7 @@ def generate_qr_code_for_url(hash: str):
         )
 
     # Create QR Code from redirect to.
-    qr_code = pyqrcode.create(short_url.redirect)
+    qr_code = pyqrcode.create(request.host_url[:-1] + url_for("url.open_short_url", hash=short_url.hash))
 
     # Export QR to the stream or pass directly.
     scale = request.args.get("scale", "3")
