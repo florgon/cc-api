@@ -90,7 +90,7 @@ def generate_qr_code_for_url(hash: str):
 
     # Create QR Code from redirect to.
     qr_code = pyqrcode.create(
-        request.host_url[:-1] + url_for("url.open_short_url", hash=short_url.hash)
+        request.host_url[:-1] + url_for("urls.open_short_url", hash=short_url.hash)
     )
 
     # Export QR to the stream or pass directly.
