@@ -46,7 +46,6 @@ def generate_qr_code_for_url(hash: str):
     TODO: Redirect to open handler, not directly to the target url.
     TODO: Fix caching to not generate new QR code every time.
     TODO: Custom logo for QR.
-    TODO: Allow to pass scale.
     """
     response_as = request.args.get("as", "svg")
     short_url = crud.url.get_by_hash(hash=hash)
@@ -61,13 +60,21 @@ def generate_qr_code_for_url(hash: str):
     qr_code = pyqrcode.create(short_url.redirect)
 
     # Export QR to the stream or pass directly.
+    scale = request.args.get("scale", "3")
+    if not scale.isdigit():
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`scale` argument must be a positive integer number!"
+        )
+    scale = int(scale)
+
     qr_code_stream = BytesIO() if response_as != "txt" else None
     if response_as == "svg":
-        qr_code.svg(qr_code_stream, scale=3)
+        qr_code.svg(qr_code_stream, scale=scale)
     elif response_as == "png":
-        qr_code.png(qr_code_stream, scale=3)
+        qr_code.png(qr_code_stream, scale=scale)
 
-    if response_as in ("svg", "png"):
+    if qr_code_stream is not None:
         # Headers to not cache image.
         headers_no_cache = {
             "Content-Type": "image/svg+xml" if response_as == "svg" else "image/png",
