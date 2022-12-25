@@ -58,18 +58,18 @@ def generate_qr_code_for_url(hash: str):
 
     # Export QR to the stream or pass directly.
     scale = request.args.get("scale", "3")
-    if not scale.isdigit() or scale == "0":
+    if not scale.isdigit() or scale == "0" or int(scale) > 8:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
-            "`scale` argument must be a positive integer number!"
+            "`scale` argument must be an integer number in range from 1 to 8!"
         )
     scale = int(scale)
 
     quiet_zone = request.args.get("quiet_zone", "4")
-    if not quiet_zone.isdigit():
+    if not quiet_zone.isdigit() or int(quiet_zone) > 25:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
-            "`quiet_zone` argument must be a positive integer number or 0!"
+            "`quiet_zone` argument must be an integer number in range from 0 to 25!"
         )
     quiet_zone = int(quiet_zone)
 
