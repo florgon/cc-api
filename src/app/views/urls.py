@@ -59,7 +59,7 @@ def short_url_index(hash: str):
         GET: Returns info about short url
         DELETE: Deletes url
     """
-    short_url = crud.url.get_by_hash(hash=hash)
+    short_url = crud.url.get_by_hash(hash=hash, only_active=True)
     validate_short_url(short_url)
 
     if request.method == "DELETE":
