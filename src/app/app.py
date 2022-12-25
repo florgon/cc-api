@@ -25,12 +25,12 @@ def _create_app() -> Flask:
     init_with_app(app)
 
     from app.views.utils import bp_utils
-    from app.views.url import bp_url
+    from app.views.urls import bp_urls
     from app.exception_handlers import bp_handlers
-    
+
     PROXY_PREFIX = app.config["PROXY_PREFIX"]
     app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
-    app.register_blueprint(bp_url, url_prefix=f"{PROXY_PREFIX}/url")
+    app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
     app.register_blueprint(bp_handlers)
 
     return app
