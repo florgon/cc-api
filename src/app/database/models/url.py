@@ -24,7 +24,7 @@ class Url(db.Model):
     stats_is_public = db.Column(db.Boolean, default=False)
     is_deleted = db.Column(db.Boolean, default=False)
 
-    views = db.relationship("UrlView", backref="url", lazy="dynamic", nullable=False)
+    views = db.relationship("UrlView", backref="url", lazy="dynamic", uselist=True)
 
     @property
     def hash(self) -> str:

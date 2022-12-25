@@ -18,7 +18,7 @@ def api_error_exception_to_response(e: ApiErrorException):
     return api_error(e.api_code, e.message, e.data)
 
 
-@bp_handlers.app_errorhandler(Exception)
+#@bp_handlers.app_errorhandler(Exception)
 def http_500_error_handler(e: Exception):
     """
     HTTP 500 status code error handler.

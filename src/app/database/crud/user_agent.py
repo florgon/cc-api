@@ -16,9 +16,9 @@ def get_or_create(db: SQLAlchemy, user_agent: str) -> UserAgent:
     :return: UserAgent object
     :rtype: UserAgent
     """
-    user_agent_object = UserAgent.query.filter_by(value=user_agent).first()
+    user_agent_object = UserAgent.query.filter_by(user_agent_value=user_agent).first()
     if user_agent_object is None:
-        user_agent_object = UserAgent(value=UserAgent)
+        user_agent_object = UserAgent(user_agent_value=user_agent)
         db.session.add(user_agent_object)
         db.session.commit()
         db.session.refresh(user_agent_object)

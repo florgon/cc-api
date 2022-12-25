@@ -19,7 +19,7 @@ def create(db: SQLAlchemy, ip: str, user_agent: str, url: Url) -> UrlView:
     :return: created url view
     :rtype: UrlView
     """
-    user_agent_object = crud.user_agent.get_or_create(user_agent)
+    user_agent_object = crud.user_agent.get_or_create(db=db, user_agent=user_agent)
     url_view = UrlView(
         ip=ip,
         user_agent_id=user_agent_object.id,
