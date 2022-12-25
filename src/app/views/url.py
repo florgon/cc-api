@@ -35,7 +35,7 @@ def open_short_url(hash: str):
     """
     Redirects user to long redirect url.
     """
-    short_url = crud.url.get_by_hash(hash=hash)
+    short_url = crud.url.get_by_hash(hash=hash, only_active=True)
     validate_short_url(short_url)
     
     crud.url.add_view(db=db, url=short_url)
