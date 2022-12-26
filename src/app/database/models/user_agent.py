@@ -11,7 +11,7 @@ class UserAgent(db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_agent_value = db.Column(db.String(250), nullable=False)
+    user_agent_value = db.Column(db.String(4096), nullable=False)
     url_views = db.relationship(
         "UrlView", backref="user_agent", lazy="dynamic", uselist=True
     )

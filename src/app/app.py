@@ -7,6 +7,7 @@
 from flask import Flask
 from flask_cors import CORS
 
+from app.database.models.referer import Referer
 from app.database.models.url_view import UrlView
 from app.database.models.user_agent import UserAgent
 

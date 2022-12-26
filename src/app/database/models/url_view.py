@@ -18,4 +18,5 @@ class UrlView(db.Model):
     user_agent_id = db.Column(
         db.Integer, db.ForeignKey("user_agent.id"), nullable=False
     )
+    referer_id = db.Column(db.Integer, db.ForeignKey("referer.id"), nullable=True)
     view_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

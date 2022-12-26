@@ -7,7 +7,6 @@ from flask import Blueprint, Response, request, redirect, url_for
 import pydantic
 import pyqrcode
 
-
 from app.serializers.url import serialize_url
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
@@ -89,7 +88,9 @@ def generate_qr_code_for_url(hash: str):
 
     # Create QR Code from redirect to.
     qr_code = pyqrcode.create(
-        url_for("urls.open_short_url", hash=short_url.hash, _external=True, _scheme="https")
+        url_for(
+            "urls.open_short_url", hash=short_url.hash, _external=True, _scheme="https"
+        )
     )
 
     # Export QR to the stream or pass directly.
@@ -138,11 +139,14 @@ def open_short_url(hash: str):
     short_url = crud.url.get_by_hash(hash=hash)
     validate_short_url(short_url)
 
-    if 'X-Forwarded-For' in request.headers:
-        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(' ')[-1]
+    if "X-Forwarded-For" in request.headers:
+        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(" ")[-1]
     else:
-        remote_addr = request.remote_addr or 'untrackable'
+        remote_addr = request.remote_addr or "untrackable"
     user_agent = request.user_agent.string
-    crud.url_view.create(db=db, url=short_url, ip=remote_addr, user_agent=user_agent)
+    referer = request.headers.get("Referer")
+    crud.url_view.create(
+        db=db, url=short_url, ip=remote_addr, user_agent=user_agent, referer=referer
+    )
 
     return redirect(short_url.redirect)
