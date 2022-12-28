@@ -1,8 +1,6 @@
 """
     CRUD for Referer database model.
 """
-from functools import reduce
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
