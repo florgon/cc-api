@@ -7,7 +7,7 @@ from flask import Blueprint, Response, request, redirect, url_for
 import pydantic
 import pyqrcode
 
-from app.serializers.url import serialize_url
+from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.database import crud, db
@@ -40,9 +40,8 @@ def urls_index():
 
         return api_success(serialize_url(url))
 
-    return api_error(
-        ApiErrorCode.API_NOT_IMPLEMENTED, "Listing urls is not implemented yet!"
-    )
+    urls = crud.url.get_all()
+    return api_success(serialize_urls(urls, include_stats=False))
 
 
 @bp_urls.route("/<hash>/", methods=["GET", "DELETE", "PATCH"])

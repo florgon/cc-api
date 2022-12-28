@@ -3,12 +3,14 @@
 """
 from typing import Any
 
-from flask import request, url_for
+from flask import url_for
 
 from app.database.models.url import Url
 
 
-def serialize_url(url: Url, include_stats=False) -> dict[str, Any]:
+def serialize_url(
+    url: Url, *, include_stats=False, in_list: bool = False
+) -> dict[str, Any]:
     serialized_url = {
         "id": url.id,
         "redirect_url": url.redirect,
@@ -30,6 +32,26 @@ def serialize_url(url: Url, include_stats=False) -> dict[str, Any]:
 
     if include_stats:
         # TODO: Stats (url) displaying
-        ...
+        pass
+
+    if in_list:
+        return serialized_url
 
     return {"url": serialized_url}
+
+
+def serialize_urls(
+    urls: list[Url],
+    *,
+    include_stats: bool = False,
+) -> dict[str, Any]:
+    return {
+        "urls": [
+            serialize_url(
+                url,
+                include_stats=include_stats,
+                in_list=True,
+            )
+            for url in urls
+        ]
+    }
