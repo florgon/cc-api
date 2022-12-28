@@ -1,7 +1,6 @@
 """
     URL shortener application utils views.
 """
-
 from time import time
 
 from flask import Blueprint
@@ -17,3 +16,5 @@ def get_server_time():
     Returns current time at the server, used for debugging.
     """
     return api_success({"server_time": time()})
+
+
