@@ -5,10 +5,10 @@
 from datetime import datetime
 
 from app.database import db
-from app.database.mixins import CommonMixin
+from app.database.mixins import CommonMixin, TimestampMixin
 
 
-class UrlView(db.Model, CommonMixin):
+class UrlView(db.Model, CommonMixin, TimestampMixin):
     """
     UrlView model class.
     """
@@ -19,4 +19,8 @@ class UrlView(db.Model, CommonMixin):
         db.Integer, db.ForeignKey("user_agents.id"), nullable=False
     )
     referer_id = db.Column(db.Integer, db.ForeignKey("referers.id"), nullable=True)
-    view_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+    @property
+    def view_date(self):
+        return self.created_at

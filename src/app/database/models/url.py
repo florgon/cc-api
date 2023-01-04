@@ -9,10 +9,10 @@ from flask import request, current_app
 from hashids import Hashids
 
 from app.database import db
-from app.database.mixins import CommonMixin
+from app.database.mixins import CommonMixin, TimestampMixin
 
 
-class Url(db.Model, CommonMixin):
+class Url(db.Model, CommonMixin, TimestampMixin):
     """
     Shortened URL model.
     """
