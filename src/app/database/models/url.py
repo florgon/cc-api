@@ -9,14 +9,14 @@ from flask import request, current_app
 from hashids import Hashids
 
 from app.database import db
+from app.database.mixins import CommonMixin
 
 
-class Url(db.Model):
+class Url(db.Model, CommonMixin):
     """
     Shortened URL model.
     """
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
     redirect = db.Column(db.String, nullable=False)
     expiration_date = db.Column(
         db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=14)

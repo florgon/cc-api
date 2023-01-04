@@ -3,14 +3,14 @@
     Provides data about Referers after url opening.
 """
 from app.database import db
+from app.database.mixins import CommonMixin
 
 
-class Referer(db.Model):
+class Referer(db.Model, CommonMixin):
     """
     Referer model class.
     """
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
     referer_value = db.Column(db.String(4096), nullable=False)
     url_views = db.relationship(
         "UrlView", backref="referer", lazy="dynamic", uselist=True

@@ -5,18 +5,18 @@
 from datetime import datetime
 
 from app.database import db
+from app.database.mixins import CommonMixin
 
 
-class UrlView(db.Model):
+class UrlView(db.Model, CommonMixin):
     """
     UrlView model class.
     """
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    url_id = db.Column(db.Integer, db.ForeignKey("url.id"), nullable=False)
+    url_id = db.Column(db.Integer, db.ForeignKey("urls.id"), nullable=False)
     ip = db.Column(db.String(15), nullable=False)
     user_agent_id = db.Column(
-        db.Integer, db.ForeignKey("user_agent.id"), nullable=False
+        db.Integer, db.ForeignKey("user_agents.id"), nullable=False
     )
-    referer_id = db.Column(db.Integer, db.ForeignKey("referer.id"), nullable=True)
+    referer_id = db.Column(db.Integer, db.ForeignKey("referers.id"), nullable=True)
     view_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
