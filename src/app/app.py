@@ -7,9 +7,8 @@
 from flask import Flask
 from flask_cors import CORS
 
-from app.database.models.referer import Referer
-from app.database.models.url_view import UrlView
-from app.database.models.user_agent import UserAgent
+from gatey_sdk.integrations.flask import GateyFlaskMiddleware
+from gatey_sdk import Client, PrintTransport
 
 
 def _create_app() -> Flask:
@@ -36,6 +35,26 @@ def _create_app() -> Flask:
     app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
     app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
     app.register_blueprint(bp_handlers)
+
+    client = Client(
+        transport=PrintTransport(
+            prepare_event=lambda e: (e, e.get("exception", {}).pop("traceback", None))[0]
+        ),
+        include_platform_info=True,
+        include_runtime_info=True,
+        include_sdk_info=True,
+        handle_global_exceptions=True,
+        exceptions_capture_code_context=True,
+        client_secret=app.config["GATEY_CLIENT_SECRET"],
+        server_secret=app.config["GATEY_SERVER_SECRET"],
+    )
+    app.wsgi_app = GateyFlaskMiddleware(
+        app.wsgi_app,
+        client=client,
+        capture_requests_info=False,
+        client_getter=None,
+        capture_exception_options=None,
+    )
 
     return app
 

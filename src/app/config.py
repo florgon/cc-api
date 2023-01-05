@@ -20,6 +20,9 @@ class Config:
     )
     PROXY_PREFIX = os.getenv("PROXY_PREFIX", "/v1")
 
+    GATEY_CLIENT_SECRET = os.getenv("GATEY_CLIENT_SECRET")
+    GATEY_SERVER_SECRET = os.getenv("GATEY_SERVER_SECRET")
+
 
 # Config, that should be used for development purposes.
 class ConfigDevelopment(Config):
