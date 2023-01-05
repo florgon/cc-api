@@ -17,7 +17,3 @@ def get_server_time():
     """
     return api_success({"server_time": time()})
 
-@bp_utils.route("/raise")
-def raise_exc_to_gatey():
-    1 / 0
-    return ""

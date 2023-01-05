@@ -37,9 +37,6 @@ def _create_app() -> Flask:
     app.register_blueprint(bp_handlers)
 
     client = Client(
-        transport=PrintTransport(
-            prepare_event=lambda e: (e, e.get("exception", {}).pop("traceback", None))[0]
-        ),
         include_platform_info=True,
         include_runtime_info=True,
         include_sdk_info=True,
@@ -47,6 +44,7 @@ def _create_app() -> Flask:
         exceptions_capture_code_context=True,
         client_secret=app.config["GATEY_CLIENT_SECRET"],
         server_secret=app.config["GATEY_SERVER_SECRET"],
+        project_id=app.config["GATEY_PROJECT_ID"],
     )
     app.wsgi_app = GateyFlaskMiddleware(
         app.wsgi_app,

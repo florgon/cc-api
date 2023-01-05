@@ -23,6 +23,8 @@ class Config:
     GATEY_CLIENT_SECRET = os.getenv("GATEY_CLIENT_SECRET")
     GATEY_SERVER_SECRET = os.getenv("GATEY_SERVER_SECRET")
 
+    GATEY_PROJECT_ID = int(os.getenv("GATEY_PROJECT_ID", 4))
+
 
 # Config, that should be used for development purposes.
 class ConfigDevelopment(Config):
