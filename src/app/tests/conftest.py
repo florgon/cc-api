@@ -8,9 +8,12 @@ from app.app import _create_app
 
 
 @pytest.fixture()
-def app():
-    app: Flask = _create_app()
-    app.config.update(
+def app():  # pylint: disable=redefined-outer-name
+    """
+    Flask core application.
+    """
+    _app: Flask = _create_app()
+    _app.config.update(
         {
             "TESTING": True,
         }
@@ -18,16 +21,22 @@ def app():
 
     # other setup can go here
 
-    yield app
+    yield _app
 
     # clean up / reset resources here
 
 
 @pytest.fixture()
 def client(app):  # pylint: disable=redefined-outer-name
+    """
+    HTTP Client.
+    """
     return app.test_client()
 
 
 @pytest.fixture()
 def runner(app):  # pylint: disable=redefined-outer-name
+    """
+    CLI runner.
+    """
     return app.test_cli_runner()

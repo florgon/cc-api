@@ -17,13 +17,14 @@ def validate_url(url: str | None) -> None:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is required!")
 
     pattern = re.compile(
-        r"^((https:\/\/|http:\/\/|)([\w_-]+\.){1,3}\w{1,10}(\/.*)?|mailto:.*@.*|tel:.*)$", flags=re.U
+        r"^((https:\/\/|http:\/\/|)([\w_-]+\.){1,3}\w{1,10}(\/.*)?|mailto:.*@.*|tel:.*)$",
+        flags=re.U,
     )
     if pattern.match(url) is None:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is invalid!")
 
 
-def validate_short_url(url: Url | None) -> None:
+def validate_short_url(url: Url | None) -> Url:
     """
     Validates short url object and raises ApiErrorException if it is expired/invalid.
     :param Url|None url: short url to validate
@@ -36,3 +37,5 @@ def validate_short_url(url: Url | None) -> None:
 
     if url.is_expired():
         raise ApiErrorException(ApiErrorCode.API_FORBIDDEN, "url is expired!")
+
+    return url

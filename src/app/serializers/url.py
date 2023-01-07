@@ -11,6 +11,9 @@ from app.database.models.url import Url
 def serialize_url(
     url: Url, *, include_stats=False, in_list: bool = False
 ) -> dict[str, Any]:
+    """
+    Serializes url object to dict for the response.
+    """
     serialized_url = {
         "id": url.id,
         "redirect_url": url.redirect,
@@ -22,7 +25,7 @@ def serialize_url(
             "qr": {
                 "href": url_for(
                     "urls.generate_qr_code_for_url",
-                    hash=url.hash,
+                    url_hash=url.hash,
                     _external=True,
                     _scheme="https",
                 )
@@ -45,6 +48,9 @@ def serialize_urls(
     *,
     include_stats: bool = False,
 ) -> dict[str, Any]:
+    """
+    Serializes list of urls objects to dict for the response.
+    """
     return {
         "urls": [
             serialize_url(

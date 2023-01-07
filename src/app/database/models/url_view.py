@@ -2,7 +2,6 @@
     URL views database model.
     Provides UrlView class with data of url view after opening url.
 """
-from datetime import datetime
 
 from app.database import db
 from app.database.mixins import CommonMixin, TimestampMixin
@@ -20,7 +19,9 @@ class UrlView(db.Model, CommonMixin, TimestampMixin):
     )
     referer_id = db.Column(db.Integer, db.ForeignKey("referers.id"), nullable=True)
 
-
     @property
     def view_date(self):
+        """
+        Date when user viewed url.
+        """
         return self.created_at

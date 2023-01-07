@@ -44,8 +44,8 @@ def urls_index():
     return api_success(serialize_urls(urls, include_stats=False))
 
 
-@bp_urls.route("/<hash>/", methods=["GET", "DELETE", "PATCH"])
-def short_url_index(hash: str):
+@bp_urls.route("/<url_hash>/", methods=["GET", "DELETE", "PATCH"])
+def short_url_index(url_hash: str):
     """
     Short url index resource.
     Methods:
@@ -53,8 +53,7 @@ def short_url_index(hash: str):
         DELETE: Deletes url
         PATCH: Updates url
     """
-    short_url = crud.url.get_by_hash(hash=hash)
-    validate_short_url(short_url)
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
 
     if request.method == "DELETE":
         crud.url.delete(db=db, url=short_url)
@@ -68,8 +67,8 @@ def short_url_index(hash: str):
     return api_success(serialize_url(short_url, include_stats=True))
 
 
-@bp_urls.route("/<hash>/qr", methods=["GET"])
-def generate_qr_code_for_url(hash: str):
+@bp_urls.route("/<url_hash>/qr", methods=["GET"])
+def generate_qr_code_for_url(url_hash: str):
     """
     Generates QR code image for hash url.
 
@@ -77,8 +76,7 @@ def generate_qr_code_for_url(hash: str):
     TODO: Custom logo for QR.
     """
     response_as = request.args.get("as", "svg")
-    short_url = crud.url.get_by_hash(hash=hash)
-    validate_short_url(short_url)
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
     if response_as not in ("svg", "txt", "png"):
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
@@ -88,7 +86,10 @@ def generate_qr_code_for_url(hash: str):
     # Create QR Code from redirect to.
     qr_code = pyqrcode.create(
         url_for(
-            "urls.open_short_url", hash=short_url.hash, _external=True, _scheme="https"
+            "urls.open_short_url",
+            url_hash=short_url.hash,
+            _external=True,
+            _scheme="https",
         )
     )
 
@@ -125,18 +126,17 @@ def generate_qr_code_for_url(hash: str):
             "Content-Length": str(qr_code_stream.getbuffer().nbytes),
         }
         return qr_code_stream.getvalue(), 200, headers_no_cache
-    else:
-        # Plain text.
-        return qr_code.text()
+
+    # Plain text.
+    return qr_code.text()
 
 
-@bp_urls.route("/<hash>/open", methods=["GET"])
-def open_short_url(hash: str):
+@bp_urls.route("/<url_hash>/open", methods=["GET"])
+def open_short_url(url_hash: str):
     """
     Redirects user to long redirect url.
     """
-    short_url = crud.url.get_by_hash(hash=hash)
-    validate_short_url(short_url)
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
 
     if "X-Forwarded-For" in request.headers:
         remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(" ")[-1]
@@ -151,25 +151,22 @@ def open_short_url(hash: str):
     return redirect(short_url.redirect)
 
 
-@bp_urls.route("/<hash>/stats", methods=["GET"])
-def short_url_stats(hash: str):
+@bp_urls.route("/<url_hash>/stats", methods=["GET"])
+def short_url_stats(url_hash: str):
     """
     Returns stats for short url.
     """
-    short_url = crud.url.get_by_hash(hash=hash)
-    validate_short_url(short_url)
-    
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
+
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):
         return api_error(
-            ApiErrorCode.API_INVALID_REQUEST, "`referer_views_value_as` must be a `percent` or `number`!"
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`referer_views_value_as` must be a `percent` or `number`!",
         )
-    referers = crud.referer.get_url_views_count_by_referers(db=db, url=short_url, value_as=referer_views_value_as)
+    referers = crud.referer.get_url_views_count_by_referers(
+        db=db, url=short_url, value_as=referer_views_value_as
+    )
     return api_success(
-        {
-            "views": {
-                "total": short_url.views.count(),
-                "by_referers": referers
-            }
-        }
+        {"views": {"total": short_url.views.count(), "by_referers": referers}}
     )

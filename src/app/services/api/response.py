@@ -6,8 +6,8 @@ import json
 
 from flask import Response, jsonify, make_response
 
-from .errors import ApiErrorCode
-from .version import API_VERSION
+from app.services.api.errors import ApiErrorCode
+from app.services.api.version import API_VERSION
 
 
 def api_error(

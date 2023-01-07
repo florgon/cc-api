@@ -1,8 +1,9 @@
 """
     Module for testing services/url.py
 """
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
 
 from app.services.api.errors import ApiErrorException
 from app.services.url import validate_url, validate_short_url
@@ -14,11 +15,19 @@ class TestValidateUrl:
     Tests for validate_url function
     """
 
-    def test_with_none_url(self):
+    @staticmethod
+    def test_with_none_url():
+        """
+        Tests that raises error when there is invalid url.
+        """
         with pytest.raises(ApiErrorException):
             validate_url(url=None)
 
-    def test_with_empty_url(self):
+    @staticmethod
+    def test_with_empty_url():
+        """
+        Tests that raises error when there is empty url.
+        """
         with pytest.raises(ApiErrorException):
             validate_url(url="   ")
 
@@ -33,7 +42,11 @@ class TestValidateUrl:
             "wrong_symbols%in.url",
         ],
     )
-    def test_wrong_urls(self, url):
+    @staticmethod
+    def test_wrong_urls(url):
+        """
+        Tests that raises error when there is invalid url.
+        """
         with pytest.raises(ApiErrorException):
             validate_url(url=url)
 
@@ -44,8 +57,12 @@ class TestValidateUrl:
             "https://vk.com/florgon",
         ],
     )
-    def test_normal_url(self, url):
-        assert validate_url(url=url) == None
+    @staticmethod
+    def test_normal_url(url):
+        """
+        Tests that there is no error when there is valid one url.
+        """
+        assert validate_url(url=url) is None
 
 
 class TestValidateShortUrl:
@@ -53,11 +70,19 @@ class TestValidateShortUrl:
     Tests for validate_short_url function
     """
 
-    def test_with_none_url(self):
+    @staticmethod
+    def test_with_none_url():
+        """
+        Tests that raises error when there is invalid url.
+        """
         with pytest.raises(ApiErrorException):
             validate_short_url(url=None)
 
-    def test_expired_url(self):
+    @staticmethod
+    def test_expired_url():
+        """
+        Tests that raises error when there is expired url.
+        """
         url = Url(
             redirect="https://florgon.space",
             expiration_date=datetime.utcnow() - timedelta(days=1),
@@ -65,9 +90,13 @@ class TestValidateShortUrl:
         with pytest.raises(ApiErrorException):
             validate_short_url(url)
 
-    def test_normal_url(self):
+    @staticmethod
+    def test_normal_url():
+        """
+        Tests that not raises error when there is valid url.
+        """
         url = Url(
             redirect="https://florgon.space",
             expiration_date=datetime.utcnow() + timedelta(days=1),
         )
-        assert validate_short_url(url=url) == None
+        assert validate_short_url(url=url) is not None

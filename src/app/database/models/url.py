@@ -5,7 +5,7 @@
 """
 from datetime import datetime, timedelta
 
-from flask import request, current_app
+from flask import current_app
 from hashids import Hashids
 
 from app.database import db
@@ -27,7 +27,7 @@ class Url(db.Model, CommonMixin, TimestampMixin):
     views = db.relationship("UrlView", backref="url", lazy="dynamic", uselist=True)
 
     @property
-    def hash(self) -> str:
+    def hash(self) -> str:  # pylint: disable=redefined-builtin
         """
         Returns hash based on model id.
         :rtype: str

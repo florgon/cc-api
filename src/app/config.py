@@ -1,4 +1,3 @@
-#!usr/bin/python
 """
     Config files.
 """
@@ -7,6 +6,10 @@ import os
 
 
 class Config:
+    """
+    Base config for app.
+    """
+
     SECRET_KEY = "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t"
     FLASK_SECRET_KEY = SECRET_KEY
     DEBUG = False
@@ -23,14 +26,20 @@ class Config:
     GATEY_CLIENT_SECRET = os.getenv("GATEY_CLIENT_SECRET")
     GATEY_SERVER_SECRET = os.getenv("GATEY_SERVER_SECRET")
 
-    GATEY_PROJECT_ID = int(os.getenv("GATEY_PROJECT_ID", 4))
+    GATEY_PROJECT_ID = int(os.getenv("GATEY_PROJECT_ID", "4"))
 
 
-# Config, that should be used for development purposes.
 class ConfigDevelopment(Config):
+    """
+    Config, that should be used for development purposes.
+    """
+
     DEBUG = True
 
 
-# Config, that should be used for production.
 class ConfigProduction(Config):
+    """
+    Config, that should be used for production.
+    """
+
     DEBUG = False
