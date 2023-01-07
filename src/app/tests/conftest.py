@@ -12,8 +12,8 @@ def app():  # pylint: disable=redefined-outer-name
     """
     Flask core application.
     """
-    app: Flask = _create_app()
-    app.config.update(
+    _app: Flask = _create_app()
+    _app.config.update(
         {
             "TESTING": True,
         }
@@ -21,7 +21,7 @@ def app():  # pylint: disable=redefined-outer-name
 
     # other setup can go here
 
-    yield app
+    yield _app
 
     # clean up / reset resources here
 
