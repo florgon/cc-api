@@ -16,7 +16,8 @@ psycopg2-binary==2.9.5
 
 # Testing.
 # TODO: Migrate to other req. file.
-pytest==7.2.0
+pytest==7.2.0  # Unit tests.
+pytest-cov==4.0.0  # Tests coverage.
 
 # QR.
 PyQRCode==1.2.1
