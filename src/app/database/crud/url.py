@@ -8,11 +8,17 @@ from hashids import Hashids
 from app.database.models.url import Url
 
 
-def create_url(db: SQLAlchemy, redirect_url: str, stats_is_public: bool = False) -> Url:
+def create_url(
+    db: SQLAlchemy, 
+    redirect_url: str,
+    stats_is_public: bool = False,
+    user_id: int | None = None
+) -> Url:
     """
     Creates new shortened url in database.
     :param SQLAlchemy db: database object
     :param str redirect_url: long url for redirecting
+    :param int | None user_id: id of local user
     :return: created url object
     :rtype: Url
     """
@@ -25,6 +31,7 @@ def create_url(db: SQLAlchemy, redirect_url: str, stats_is_public: bool = False)
     url = Url(
         redirect=redirect_url,
         stats_is_public=stats_is_public,
+        user_id=user_id,
     )
 
     db.session.add(url)
