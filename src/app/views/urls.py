@@ -7,7 +7,6 @@ from flask import Blueprint, Response, request, redirect, url_for
 import pydantic
 import pyqrcode
 
-from app.database.models.url import Url
 from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
