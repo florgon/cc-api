@@ -7,6 +7,7 @@ from flask import Blueprint, Response, request, redirect, url_for
 import pydantic
 import pyqrcode
 
+from app.database.models.url import Url
 from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
@@ -53,8 +54,7 @@ def short_url_index(url_hash: str):
         DELETE: Deletes url
         PATCH: Updates url
     """
-    short_url = crud.url.get_by_hash(url_hash=url_hash)
-    validate_short_url(short_url)
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
 
     if request.method == "DELETE":
         crud.url.delete(db=db, url=short_url)
@@ -77,8 +77,7 @@ def generate_qr_code_for_url(url_hash: str):
     TODO: Custom logo for QR.
     """
     response_as = request.args.get("as", "svg")
-    short_url = crud.url.get_by_hash(url_hash=url_hash)
-    validate_short_url(short_url)
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
     if response_as not in ("svg", "txt", "png"):
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
@@ -138,8 +137,7 @@ def open_short_url(url_hash: str):
     """
     Redirects user to long redirect url.
     """
-    short_url = crud.url.get_by_hash(url_hash=url_hash)
-    validate_short_url(short_url)
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
 
     if "X-Forwarded-For" in request.headers:
         remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(" ")[-1]
@@ -159,8 +157,7 @@ def short_url_stats(url_hash: str):
     """
     Returns stats for short url.
     """
-    short_url = crud.url.get_by_hash(url_hash=url_hash)
-    validate_short_url(short_url)
+    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):

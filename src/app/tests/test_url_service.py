@@ -99,4 +99,4 @@ class TestValidateShortUrl:
             redirect="https://florgon.space",
             expiration_date=datetime.utcnow() + timedelta(days=1),
         )
-        assert validate_short_url(url=url) is None
+        assert validate_short_url(url=url) is not None
