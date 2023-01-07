@@ -15,7 +15,7 @@ class CommonMixin:
     """
 
     @declared_attr
-    def __tablename__(cls) -> str:
+    def __tablename__(cls) -> str:  # pylint: disable=no-self-argument
         pattern = re.compile(r"[A-Z][a-z]*")
         return ("_".join(pattern.findall(cls.__name__)) + "s").lower()
 

@@ -44,8 +44,8 @@ def urls_index():
     return api_success(serialize_urls(urls, include_stats=False))
 
 
-@bp_urls.route("/<hash>/", methods=["GET", "DELETE", "PATCH"])
-def short_url_index(hash: str):
+@bp_urls.route("/<url_hash>/", methods=["GET", "DELETE", "PATCH"])
+def short_url_index(url_hash: str):
     """
     Short url index resource.
     Methods:
@@ -53,7 +53,7 @@ def short_url_index(hash: str):
         DELETE: Deletes url
         PATCH: Updates url
     """
-    short_url = crud.url.get_by_hash(hash=hash)
+    short_url = crud.url.get_by_hash(url_hash=url_hash)
     validate_short_url(short_url)
 
     if request.method == "DELETE":
@@ -68,8 +68,8 @@ def short_url_index(hash: str):
     return api_success(serialize_url(short_url, include_stats=True))
 
 
-@bp_urls.route("/<hash>/qr", methods=["GET"])
-def generate_qr_code_for_url(hash: str):
+@bp_urls.route("/<url_hash>/qr", methods=["GET"])
+def generate_qr_code_for_url(url_hash: str):
     """
     Generates QR code image for hash url.
 
@@ -77,7 +77,7 @@ def generate_qr_code_for_url(hash: str):
     TODO: Custom logo for QR.
     """
     response_as = request.args.get("as", "svg")
-    short_url = crud.url.get_by_hash(hash=hash)
+    short_url = crud.url.get_by_hash(url_hash=url_hash)
     validate_short_url(short_url)
     if response_as not in ("svg", "txt", "png"):
         return api_error(
@@ -88,7 +88,10 @@ def generate_qr_code_for_url(hash: str):
     # Create QR Code from redirect to.
     qr_code = pyqrcode.create(
         url_for(
-            "urls.open_short_url", hash=short_url.hash, _external=True, _scheme="https"
+            "urls.open_short_url",
+            url_hash=short_url.hash,
+            _external=True,
+            _scheme="https",
         )
     )
 
@@ -125,17 +128,17 @@ def generate_qr_code_for_url(hash: str):
             "Content-Length": str(qr_code_stream.getbuffer().nbytes),
         }
         return qr_code_stream.getvalue(), 200, headers_no_cache
-    else:
-        # Plain text.
-        return qr_code.text()
+
+    # Plain text.
+    return qr_code.text()
 
 
-@bp_urls.route("/<hash>/open", methods=["GET"])
-def open_short_url(hash: str):
+@bp_urls.route("/<url_hash>/open", methods=["GET"])
+def open_short_url(url_hash: str):
     """
     Redirects user to long redirect url.
     """
-    short_url = crud.url.get_by_hash(hash=hash)
+    short_url = crud.url.get_by_hash(url_hash=url_hash)
     validate_short_url(short_url)
 
     if "X-Forwarded-For" in request.headers:
@@ -151,12 +154,12 @@ def open_short_url(hash: str):
     return redirect(short_url.redirect)
 
 
-@bp_urls.route("/<hash>/stats", methods=["GET"])
-def short_url_stats(hash: str):
+@bp_urls.route("/<url_hash>/stats", methods=["GET"])
+def short_url_stats(url_hash: str):
     """
     Returns stats for short url.
     """
-    short_url = crud.url.get_by_hash(hash=hash)
+    short_url = crud.url.get_by_hash(url_hash=url_hash)
     validate_short_url(short_url)
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")

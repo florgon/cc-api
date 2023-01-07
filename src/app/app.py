@@ -1,3 +1,4 @@
+# pylint: disable=import-outside-toplevel
 #!usr/bin/python
 """
     URL shortener API Flask application.
@@ -18,22 +19,22 @@ def _create_app() -> Flask:
     _app = Flask(import_name=__name__)
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
-    from app.config import ConfigDevelopment  # pylint: disable=import-outside-toplevel
+    from app.config import ConfigDevelopment
 
     _app.config.from_object(ConfigDevelopment)
     _app.json.sort_keys = False
 
     from app.database.core import (
         init_with_app,
-    )  # pylint: disable=import-outside-toplevel
+    )
 
     init_with_app(_app)
 
-    from app.views.utils import bp_utils  # pylint: disable=import-outside-toplevel
-    from app.views.urls import bp_urls  # pylint: disable=import-outside-toplevel
+    from app.views.utils import bp_utils
+    from app.views.urls import bp_urls
     from app.exception_handlers import (
         bp_handlers,
-    )  # pylint: disable=import-outside-toplevel
+    )
 
     PROXY_PREFIX = _app.config["PROXY_PREFIX"]
     _app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
