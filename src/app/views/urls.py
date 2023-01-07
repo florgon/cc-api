@@ -158,18 +158,16 @@ def short_url_stats(hash: str):
     """
     short_url = crud.url.get_by_hash(hash=hash)
     validate_short_url(short_url)
-    
+
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):
         return api_error(
-            ApiErrorCode.API_INVALID_REQUEST, "`referer_views_value_as` must be a `percent` or `number`!"
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`referer_views_value_as` must be a `percent` or `number`!",
         )
-    referers = crud.referer.get_url_views_count_by_referers(db=db, url=short_url, value_as=referer_views_value_as)
+    referers = crud.referer.get_url_views_count_by_referers(
+        db=db, url=short_url, value_as=referer_views_value_as
+    )
     return api_success(
-        {
-            "views": {
-                "total": short_url.views.count(),
-                "by_referers": referers
-            }
-        }
+        {"views": {"total": short_url.views.count(), "by_referers": referers}}
     )

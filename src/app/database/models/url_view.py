@@ -20,7 +20,6 @@ class UrlView(db.Model, CommonMixin, TimestampMixin):
     )
     referer_id = db.Column(db.Integer, db.ForeignKey("referers.id"), nullable=True)
 
-
     @property
     def view_date(self):
         return self.created_at

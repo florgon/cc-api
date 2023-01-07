@@ -16,4 +16,3 @@ def get_server_time():
     Returns current time at the server, used for debugging.
     """
     return api_success({"server_time": time()})
-

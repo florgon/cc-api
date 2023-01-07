@@ -5,6 +5,7 @@
 from app.database import db
 from app.database.mixins import CommonMixin
 
+
 class UserAgent(db.Model, CommonMixin):
     """
     UserAgent model class.

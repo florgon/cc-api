@@ -17,7 +17,8 @@ def validate_url(url: str | None) -> None:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is required!")
 
     pattern = re.compile(
-        r"^((https:\/\/|http:\/\/|)([\w_-]+\.){1,3}\w{1,10}(\/.*)?|mailto:.*@.*|tel:.*)$", flags=re.U
+        r"^((https:\/\/|http:\/\/|)([\w_-]+\.){1,3}\w{1,10}(\/.*)?|mailto:.*@.*|tel:.*)$",
+        flags=re.U,
     )
     if pattern.match(url) is None:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is invalid!")
