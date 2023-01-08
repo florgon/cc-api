@@ -12,6 +12,7 @@ from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.database import crud, db
 from app.services.url import validate_short_url, validate_url
+from app.services.request.auth import is_authenticated, query_auth_data_from_request
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -34,8 +35,13 @@ def urls_index():
             "stats_is_public", False, type=lambda i: pydantic.parse_obj_as(bool, i)
         )
 
+        user_id = None
+        if is_authenticated():
+            auth_data = query_auth_data_from_request(db=db)
+            user_id = auth_data.user.id
+
         url = crud.url.create_url(
-            db=db, redirect_url=long_url, stats_is_public=stats_is_public
+            db=db, redirect_url=long_url, stats_is_public=stats_is_public, user_id=user_id
         )
 
         return api_success(serialize_url(url))

@@ -41,7 +41,7 @@ def query_auth_data_from_request(db: SQLAlchemy) -> AuthData:
     """
 
     # Get token from request and query data from it as external token.
-    token = _get_token_from_request()
+    token = get_token_from_request()
     return query_auth_data_from_token(db=db, token=token)
 
 
@@ -136,7 +136,7 @@ def _check_token_with_sso_server(token: str) -> dict[str, Any]:
 
     config = current_app.config
     url = (
-        f"{config.SSO_API_URL}/{config.SSO_API_METHOD}?scope={SSO_REQUESTED_SCOPE}"
+        f"{config['SSO_API_URL']}/{config['SSO_API_METHOD']}?scope={SSO_REQUESTED_SCOPE}"
     )
     params = {"token": token}
 

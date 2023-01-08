@@ -16,6 +16,7 @@ def serialize_url(
     """
     serialized_url = {
         "id": url.id,
+        "sso_user_id": None,
         "redirect_url": url.redirect,
         "hash": url.hash,
         "expires_at": url.expiration_date.timestamp(),
@@ -32,6 +33,11 @@ def serialize_url(
             },
         },
     }
+    
+    if url.owner_id:
+        serialized_url["sso_user_id"] = url.owner_id
+    else:
+        serialized_url.pop("sso_user_id")
 
     if include_stats:
         # TODO: Stats (url) displaying
