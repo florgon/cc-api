@@ -40,8 +40,13 @@ def serialize_url(
         serialized_url.pop("sso_user_id")
 
     if include_stats:
-        # TODO: Stats (url) displaying
-        pass
+        serialized_url["_links"]["stats"] = {"href": url_for(
+            "urls.short_url_stats",
+            url_hash=url.hash,
+            _external=True,
+            _scheme="https",
+
+        )}
 
     if in_list:
         return serialized_url

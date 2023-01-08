@@ -35,16 +35,18 @@ def urls_index():
             "stats_is_public", False, type=lambda i: pydantic.parse_obj_as(bool, i)
         )
 
-        user_id = None
+        include_stats = stats_is_public
+        owner_id = None
         if is_authenticated():
+            include_stats = True
             auth_data = query_auth_data_from_request(db=db)
-            user_id = auth_data.user.id
+            owner_id = auth_data.user_id
 
         url = crud.url.create_url(
-            db=db, redirect_url=long_url, stats_is_public=stats_is_public, user_id=user_id
+            db=db, redirect_url=long_url, stats_is_public=stats_is_public, owner_id=owner_id
         )
 
-        return api_success(serialize_url(url))
+        return api_success(serialize_url(url, include_stats=include_stats))
 
     urls = crud.url.get_all()
     return api_success(serialize_urls(urls, include_stats=False))

@@ -9,7 +9,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from gatey_sdk.integrations.flask import GateyFlaskMiddleware
-from gatey_sdk import Client
+from gatey_sdk import Client, PrintTransport
 
 
 def _create_app() -> Flask:
@@ -42,6 +42,9 @@ def _create_app() -> Flask:
     _app.register_blueprint(bp_handlers)
 
     client = Client( 
+        transport=PrintTransport(
+            prepare_event=lambda e: e
+        ),
         include_platform_info=True,
         include_runtime_info=True,
         include_sdk_info=True,
