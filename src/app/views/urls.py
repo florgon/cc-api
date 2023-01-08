@@ -175,6 +175,9 @@ def short_url_stats(url_hash: str):
     referers = crud.referer.get_url_views_count_by_referers(
         db=db, url=short_url, value_as=referer_views_value_as
     )
-    return api_success(
-        {"views": {"total": short_url.views.count(), "by_referers": referers}}
-    )
+
+    response = {"views": {"total": short_url.views.count()}}
+    if referers:
+        response["views"]["by_referers"] = referers
+
+    return api_success(response)
