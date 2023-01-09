@@ -64,6 +64,13 @@ def short_url_index(url_hash: str):
     short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
 
     if request.method == "DELETE":
+        auth_data = query_auth_data_from_request(db=db)
+        if short_url.owner_id != auth_data.user_id:
+            return api_error(
+                ApiErrorCode.API_FORBIDDEN,
+                ""
+            )
+
         crud.url.delete(db=db, url=short_url)
         return Response(status=204)
 
