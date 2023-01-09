@@ -165,6 +165,13 @@ def short_url_stats(url_hash: str):
     Returns stats for short url.
     """
     short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
+    if not short_url.stats_is_public:
+        auth_data = query_auth_data_from_request(db=db)
+        if auth_data.user_id != short_url.owner_id:
+            return api_error(
+                ApiErrorCode.API_FORBIDDEN,
+                "you are not owner of this url!"
+            )
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):
