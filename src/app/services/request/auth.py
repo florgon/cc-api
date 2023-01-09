@@ -61,9 +61,9 @@ def get_token_from_request() -> str:
     token_param = flask_request.args.get("access_token", "")
     return token_header or token_param
 
-def is_authenticated() -> bool:
+def is_authorized() -> bool:
     """
-    Checks that request has authentication (header or query param).
+    Checks that request has authorization (header or query param).
     :rtype: bool
     """
     return bool(get_token_from_request())

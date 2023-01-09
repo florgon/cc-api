@@ -11,8 +11,8 @@ from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.database import crud, db
-from app.services.url import validate_short_url, validate_url
-from app.services.request.auth import is_authenticated, query_auth_data_from_request
+from app.services.url import validate_short_url, validate_url, validate_url_owner
+from app.services.request.auth import is_authorized, query_auth_data_from_request
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -166,19 +166,35 @@ def open_short_url(url_hash: str):
     return redirect(short_url.redirect)
 
 
-@bp_urls.route("/<url_hash>/stats", methods=["GET"])
+@bp_urls.route("/<url_hash>/stats", methods=["GET", "DELETE"])
 def short_url_stats(url_hash: str):
     """
     Returns stats for short url.
+    Methods:
+        GET: get url statistics
+        DELETE: clear url statistics
     """
     short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
-    if not short_url.stats_is_public:
+    user_id = None
+    if is_authorized():
         auth_data = query_auth_data_from_request(db=db)
-        if auth_data.user_id != short_url.owner_id:
-            return api_error(
-                ApiErrorCode.API_FORBIDDEN,
-                "you are not owner of this url!"
-            )
+        user_id = auth_data.user_id
+        
+
+    is_owner = False
+    if not short_url.stats_is_public:
+        validate_url_owner(short_url, owner_id=user_id)
+        is_owner = True
+        
+    if request.method == "DELETE":
+        if not is_owner:
+            auth_data = query_auth_data_from_request(db=db)
+            validate_url_owner(short_url, owner_id=user_id)
+            is_owner = True
+        
+        crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
+        return Response(status=204)
+
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):

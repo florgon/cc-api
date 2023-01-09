@@ -39,3 +39,17 @@ def validate_short_url(url: Url | None) -> Url:
         raise ApiErrorException(ApiErrorCode.API_FORBIDDEN, "url is expired!")
 
     return url
+
+
+def validate_url_owner(url: Url, owner_id: int | None) -> None:
+    """
+    Checks that url is owned by user with owner_id
+    :param Url url: short url object
+    :param int owner_id: id of owner
+    :raises ApiErrorException: when url is not owned by user
+    """
+    if owner_id != url.owner_id:
+        raise ApiErrorException(
+            ApiErrorCode.API_FORBIDDEN,
+            "you are not owner of this url!"
+        )
