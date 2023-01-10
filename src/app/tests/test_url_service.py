@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from app.services.api.errors import ApiErrorException
-from app.services.url import validate_url, validate_short_url
+from app.services.url import validate_url, validate_short_url, validate_url_owner
 from app.database.models.url import Url
 
 
@@ -31,6 +31,8 @@ class TestValidateUrl:
         with pytest.raises(ApiErrorException):
             validate_url(url="   ")
 
+
+    @staticmethod
     @pytest.mark.parametrize(
         "url",
         [
@@ -42,14 +44,14 @@ class TestValidateUrl:
             "wrong_symbols%in.url",
         ],
     )
-    @staticmethod
     def test_wrong_urls(url):
         """
         Tests that raises error when there is invalid url.
         """
         with pytest.raises(ApiErrorException):
             validate_url(url=url)
-
+    
+    @staticmethod
     @pytest.mark.parametrize(
         "url",
         [
@@ -57,7 +59,6 @@ class TestValidateUrl:
             "https://vk.com/florgon",
         ],
     )
-    @staticmethod
     def test_normal_url(url):
         """
         Tests that there is no error when there is valid one url.
@@ -100,3 +101,39 @@ class TestValidateShortUrl:
             expiration_date=datetime.utcnow() + timedelta(days=1),
         )
         assert validate_short_url(url=url) is not None
+
+
+class TestValidateUrlOwner():
+    """
+    Tests for validate_url_owner function.
+    """
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "owner_id",
+        [None, 33]
+    )
+    def test_with_wrong_owner_id(owner_id: int | None):
+        """
+        Tests that function raises error when owner_id is not the same with url owner id.
+        """
+        url = Url(
+            redirect="https://florgon.space",
+            owner_id=1,
+        )
+        with pytest.raises(ApiErrorException):
+            validate_url_owner(url=url, owner_id=owner_id)
+
+
+    @staticmethod
+    def test_with_normal_owner_id():
+        """
+        Tests that function doesn't raises error when owner_ids are same 
+        """
+        url = Url(
+            redirect="https://florgon.space",
+            owner_id=1,
+        )
+        assert validate_url_owner(url=url, owner_id=url.owner_id) is None
+
+
