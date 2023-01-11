@@ -31,7 +31,6 @@ class TestValidateUrl:
         with pytest.raises(ApiErrorException):
             validate_url(url="   ")
 
-
     @staticmethod
     @pytest.mark.parametrize(
         "url",
@@ -50,7 +49,7 @@ class TestValidateUrl:
         """
         with pytest.raises(ApiErrorException):
             validate_url(url=url)
-    
+
     @staticmethod
     @pytest.mark.parametrize(
         "url",
@@ -103,16 +102,13 @@ class TestValidateShortUrl:
         assert validate_short_url(url=url) is not None
 
 
-class TestValidateUrlOwner():
+class TestValidateUrlOwner:
     """
     Tests for validate_url_owner function.
     """
 
     @staticmethod
-    @pytest.mark.parametrize(
-        "owner_id",
-        [None, 33]
-    )
+    @pytest.mark.parametrize("owner_id", [None, 33])
     def test_with_wrong_owner_id(owner_id: int | None):
         """
         Tests that function raises error when owner_id is not the same with url owner id.
@@ -124,16 +120,13 @@ class TestValidateUrlOwner():
         with pytest.raises(ApiErrorException):
             validate_url_owner(url=url, owner_id=owner_id)
 
-
     @staticmethod
     def test_with_normal_owner_id():
         """
-        Tests that function doesn't raises error when owner_ids are same 
+        Tests that function doesn't raises error when owner_ids are same
         """
         url = Url(
             redirect="https://florgon.space",
             owner_id=1,
         )
         assert validate_url_owner(url=url, owner_id=url.owner_id) is None
-
-

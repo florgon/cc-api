@@ -50,8 +50,7 @@ def validate_url_owner(url: Url, owner_id: int | None) -> None:
     """
     if owner_id != url.owner_id or owner_id is None:
         raise ApiErrorException(
-            ApiErrorCode.API_FORBIDDEN,
-            "you are not owner of this url!"
+            ApiErrorCode.API_FORBIDDEN, "you are not owner of this url!"
         )
 
 

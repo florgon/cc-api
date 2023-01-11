@@ -44,6 +44,7 @@ def query_auth_data_from_request(db: SQLAlchemy) -> AuthData:
     token = get_token_from_request()
     return query_auth_data_from_token(db=db, token=token)
 
+
 def try_query_auth_data_from_request(db: SQLAlchemy) -> tuple[bool, AuthData | None]:
     """
     Tries query authentication data from request (from request token), and returns tuple with status and auth data.
@@ -78,12 +79,14 @@ def get_token_from_request() -> str:
     token_param = flask_request.args.get("access_token", "")
     return token_header or token_param
 
+
 def is_authorized() -> bool:
     """
     Checks that request has authorization (header or query param).
     :rtype: bool
     """
     return bool(get_token_from_request())
+
 
 def _decode_token(
     token: str,
@@ -152,9 +155,7 @@ def _check_token_with_sso_server(token: str) -> dict[str, Any]:
     """
 
     config = current_app.config
-    url = (
-        f"{config['SSO_API_URL']}/{config['SSO_API_METHOD']}?scope={SSO_REQUESTED_SCOPE}"
-    )
+    url = f"{config['SSO_API_URL']}/{config['SSO_API_METHOD']}?scope={SSO_REQUESTED_SCOPE}"
     params = {"token": token}
 
     try:
@@ -210,4 +211,3 @@ def _query_auth_data(
     user_id = response.get("user_id")
     user = _internal_service_auth(db, user_id)
     return AuthData(user_id=user_id, permissions=permissions, user=user)
-

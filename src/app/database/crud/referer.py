@@ -63,7 +63,7 @@ def get_url_views_count_by_referers(
 
     if null_referer_views_count > 0:
         formatted_referers["untracked"] = (
-            _get_percentage(all_views_count, null_referer_views_count) 
+            _get_percentage(all_views_count, null_referer_views_count)
             if value_as == "percent"
             else null_referer_views_count
         )

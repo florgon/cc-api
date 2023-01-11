@@ -33,20 +33,21 @@ def serialize_url(
             },
         },
     }
-    
+
     if url.owner_id:
         serialized_url["sso_user_id"] = url.owner_id
     else:
         serialized_url.pop("sso_user_id")
 
     if include_stats:
-        serialized_url["_links"]["stats"] = {"href": url_for(
-            "urls.short_url_stats",
-            url_hash=url.hash,
-            _external=True,
-            _scheme="https",
-
-        )}
+        serialized_url["_links"]["stats"] = {
+            "href": url_for(
+                "urls.short_url_stats",
+                url_hash=url.hash,
+                _external=True,
+                _scheme="https",
+            )
+        }
 
     if in_list:
         return serialized_url

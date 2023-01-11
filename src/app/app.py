@@ -41,7 +41,7 @@ def _create_app() -> Flask:
     _app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
     _app.register_blueprint(bp_handlers)
 
-    client = Client( 
+    client = Client(
         include_platform_info=True,
         include_runtime_info=True,
         include_sdk_info=True,

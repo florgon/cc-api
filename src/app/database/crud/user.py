@@ -12,6 +12,7 @@ def get_or_create(db: SQLAlchemy, user_id: int) -> User:
 
     return user
 
+
 def create(db: SQLAlchemy, user_id: int) -> User:
     """
     Creates local User with SSO User's user_id and returns created object.
@@ -26,6 +27,7 @@ def create(db: SQLAlchemy, user_id: int) -> User:
     db.session.refresh(user)
 
     return user
+
 
 def get_by_user_id(user_id: int) -> User | None:
     """

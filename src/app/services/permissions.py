@@ -57,7 +57,6 @@ def parse_permissions_from_scope(scope: str) -> list[Permission]:
     )
 
 
-
 # String tags, for separator and modificator that gives all permissions.
 SCOPE_PERMISSION_GRANT_ALL_TAG = "*"
 SCOPE_PERMISSION_SEPARATOR = ","

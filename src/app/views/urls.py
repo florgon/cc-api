@@ -11,7 +11,12 @@ from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.database import crud, db
-from app.services.url import is_accessed_to_stats, validate_short_url, validate_url, validate_url_owner
+from app.services.url import (
+    is_accessed_to_stats,
+    validate_short_url,
+    validate_url,
+    validate_url_owner,
+)
 from app.services.request.auth import try_query_auth_data_from_request
 
 bp_urls = Blueprint("urls", __name__)
@@ -45,7 +50,7 @@ def urls_index():
             db=db,
             redirect_url=long_url,
             stats_is_public=stats_is_public,
-            owner_id=owner_id
+            owner_id=owner_id,
         )
 
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
@@ -68,7 +73,9 @@ def short_url_index(url_hash: str):
     _, auth_data = try_query_auth_data_from_request(db=db)
 
     if request.method == "DELETE":
-        validate_url_owner(url=short_url, owner_id=auth_data.user_id if auth_data else None)
+        validate_url_owner(
+            url=short_url, owner_id=auth_data.user_id if auth_data else None
+        )
         crud.url.delete(db=db, url=short_url)
         return Response(status=204)
 
@@ -76,8 +83,10 @@ def short_url_index(url_hash: str):
         return api_error(
             ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
         )
-    
-    include_stats = is_accessed_to_stats(url=short_url, owner_id=auth_data.user_id if auth_data else None)
+
+    include_stats = is_accessed_to_stats(
+        url=short_url, owner_id=auth_data.user_id if auth_data else None
+    )
     return api_success(serialize_url(short_url, include_stats=include_stats))
 
 
@@ -179,9 +188,9 @@ def short_url_stats(url_hash: str):
         user_id = auth_data.user_id
     else:
         user_id = None
-            
+
     if request.method == "DELETE":
-        validate_url_owner(short_url, owner_id=user_id) 
+        validate_url_owner(short_url, owner_id=user_id)
         crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
         return Response(status=204)
 

@@ -9,10 +9,10 @@ from app.database.models.url import Url
 
 
 def create_url(
-    db: SQLAlchemy, 
+    db: SQLAlchemy,
     redirect_url: str,
     stats_is_public: bool = False,
-    owner_id: int | None = None
+    owner_id: int | None = None,
 ) -> Url:
     """
     Creates new shortened url in database.
