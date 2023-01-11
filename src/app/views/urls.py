@@ -12,7 +12,7 @@ from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.database import crud, db
 from app.services.url import is_accessed_to_stats, validate_short_url, validate_url, validate_url_owner
-from app.services.request.auth import is_authorized, query_auth_data_from_request, try_query_auth_data_from_request
+from app.services.request.auth import try_query_auth_data_from_request
 
 bp_urls = Blueprint("urls", __name__)
 
