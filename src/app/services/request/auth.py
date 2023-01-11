@@ -44,6 +44,23 @@ def query_auth_data_from_request(db: SQLAlchemy) -> AuthData:
     token = get_token_from_request()
     return query_auth_data_from_token(db=db, token=token)
 
+def try_query_auth_data_from_request(db: SQLAlchemy) -> tuple[bool, AuthData | None]:
+    """
+    Tries query authentication data from request (from request token), and returns tuple with status and auth data.
+    :param db: Database session.
+    :returns: (status, auth_data)
+    :rtype: tuple[bool, AuthData]
+    """
+
+    try:
+        # Try to authenticate, and if does not fall, return OK.
+        auth_data = query_auth_data_from_request(db=db)
+    except ApiErrorException:
+        # Any exception occurred - unable to authorize.
+        return False, None
+    else:
+        return True, auth_data
+
 
 def _internal_service_auth(db: SQLAlchemy, user_id: int) -> User:
     """Processes internal service auth, do signup if there is no user, or return user date if exists."""

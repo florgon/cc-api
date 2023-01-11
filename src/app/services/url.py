@@ -48,8 +48,20 @@ def validate_url_owner(url: Url, owner_id: int | None) -> None:
     :param int owner_id: id of owner
     :raises ApiErrorException: when url is not owned by user
     """
-    if owner_id != url.owner_id:
+    if owner_id != url.owner_id or owner_id is None:
         raise ApiErrorException(
             ApiErrorCode.API_FORBIDDEN,
-            "you are not owner of this url!"
+            "you are not owner of this url!"    
         )
+
+
+def is_accessed_to_stats(url: Url, owner_id: int | None):
+    if url.stats_is_public:
+        return True
+
+    try:
+        validate_url_owner(url=url, owner_id=owner_id)
+    except ApiErrorException:
+        return False
+
+    return True

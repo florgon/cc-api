@@ -11,8 +11,8 @@ from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.database import crud, db
-from app.services.url import validate_short_url, validate_url, validate_url_owner
-from app.services.request.auth import is_authorized, query_auth_data_from_request
+from app.services.url import is_accessed_to_stats, validate_short_url, validate_url, validate_url_owner
+from app.services.request.auth import is_authorized, query_auth_data_from_request, try_query_auth_data_from_request
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -35,17 +35,20 @@ def urls_index():
             "stats_is_public", False, type=lambda i: pydantic.parse_obj_as(bool, i)
         )
 
-        include_stats = stats_is_public
-        owner_id = None
-        if is_authenticated():
-            include_stats = True
-            auth_data = query_auth_data_from_request(db=db)
+        is_authorized, auth_data = try_query_auth_data_from_request(db=db)
+        if is_authorized and auth_data:
             owner_id = auth_data.user_id
+        else:
+            owner_id = None
 
         url = crud.url.create_url(
-            db=db, redirect_url=long_url, stats_is_public=stats_is_public, owner_id=owner_id
+            db=db,
+            redirect_url=long_url,
+            stats_is_public=stats_is_public,
+            owner_id=owner_id
         )
 
+        include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
         return api_success(serialize_url(url, include_stats=include_stats))
 
     urls = crud.url.get_all()
@@ -62,15 +65,10 @@ def short_url_index(url_hash: str):
         PATCH: Updates url
     """
     short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
+    _, auth_data = try_query_auth_data_from_request(db=db)
 
     if request.method == "DELETE":
-        auth_data = query_auth_data_from_request(db=db)
-        if short_url.owner_id != auth_data.user_id:
-            return api_error(
-                ApiErrorCode.API_FORBIDDEN,
-                ""
-            )
-
+        validate_url_owner(url=short_url, owner_id=auth_data.user_id if auth_data else None)
         crud.url.delete(db=db, url=short_url)
         return Response(status=204)
 
@@ -78,8 +76,9 @@ def short_url_index(url_hash: str):
         return api_error(
             ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
         )
-
-    return api_success(serialize_url(short_url, include_stats=True))
+    
+    include_stats = is_accessed_to_stats(url=short_url, owner_id=auth_data.user_id if auth_data else None)
+    return api_success(serialize_url(short_url, include_stats=include_stats))
 
 
 @bp_urls.route("/<url_hash>/qr", methods=["GET"])
@@ -175,26 +174,19 @@ def short_url_stats(url_hash: str):
         DELETE: clear url statistics
     """
     short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
-    user_id = None
-    if is_authorized():
-        auth_data = query_auth_data_from_request(db=db)
+    is_authorized, auth_data = try_query_auth_data_from_request(db=db)
+    if is_authorized and auth_data:
         user_id = auth_data.user_id
-        
-
-    is_owner = False
-    if not short_url.stats_is_public:
-        validate_url_owner(short_url, owner_id=user_id)
-        is_owner = True
-        
+    else:
+        user_id = None
+            
     if request.method == "DELETE":
-        if not is_owner:
-            auth_data = query_auth_data_from_request(db=db)
-            validate_url_owner(short_url, owner_id=user_id)
-            is_owner = True
-        
+        validate_url_owner(short_url, owner_id=user_id) 
         crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
         return Response(status=204)
 
+    if not short_url.stats_is_public:
+        validate_url_owner(short_url, owner_id=user_id)
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):
