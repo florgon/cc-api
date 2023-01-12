@@ -12,7 +12,6 @@ class Config:
 
     SECRET_KEY = "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t"
     FLASK_SECRET_KEY = SECRET_KEY
-    DEBUG = False
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

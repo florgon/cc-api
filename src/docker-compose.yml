@@ -13,6 +13,7 @@ services:
     restart: always
     volumes:
       - ../db:/var/lib/postgresql/data
+      - ./db-scripts:/docker-entrypoint-initdb.d
     env_file:
       - .database.env
     networks:
