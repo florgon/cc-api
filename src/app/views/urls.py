@@ -17,7 +17,7 @@ from app.services.url import (
     validate_url,
     validate_url_owner,
 )
-from app.services.request.auth import try_query_auth_data_from_request
+from app.services.request.auth import query_auth_data_from_request, try_query_auth_data_from_request
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -183,19 +183,17 @@ def short_url_stats(url_hash: str):
         DELETE: clear url statistics
     """
     short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
-    is_authorized, auth_data = try_query_auth_data_from_request(db=db)
-    if is_authorized and auth_data:
-        user_id = auth_data.user_id
-    else:
-        user_id = None
 
     if request.method == "DELETE":
-        validate_url_owner(short_url, owner_id=user_id)
+        auth_data = query_auth_data_from_request(db=db)
+        validate_url_owner(short_url, owner_id=auth_data.user_id)
         crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
         return Response(status=204)
 
     if not short_url.stats_is_public:
-        validate_url_owner(short_url, owner_id=user_id)
+        auth_data = query_auth_data_from_request(db=db)
+        validate_url_owner(short_url, owner_id=auth_data.user_id)
+        
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):

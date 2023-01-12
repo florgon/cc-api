@@ -71,21 +71,6 @@ def get_by_hash(url_hash: str, only_active: bool = True) -> Url | None:
     return url.first()
 
 
-def add_view(db: SQLAlchemy, url: Url) -> Url:
-    """
-    Adds view to url stats before redirecting.
-    :param SQLAlchemy db: database object
-    :param Url url: url object
-    :return: updated url object
-    :rtype: Url
-    """
-    url.views += 1
-    db.session.commit()
-    db.session.refresh(url)
-
-    return url
-
-
 def delete(db: SQLAlchemy, url: Url) -> None:
     """
     Deletes url and views.

@@ -14,7 +14,6 @@ class Config:
     FLASK_SECRET_KEY = SECRET_KEY
     DEBUG = False
 
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     HASHIDS_SALT = os.getenv(
@@ -38,6 +37,7 @@ class ConfigDevelopment(Config):
 
     DEBUG = True
 
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
 
 class ConfigProduction(Config):
     """
@@ -45,3 +45,10 @@ class ConfigProduction(Config):
     """
 
     DEBUG = False
+
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
+
+class ConfigTesting(Config):
+    TESTING = True
+
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_DSN")
