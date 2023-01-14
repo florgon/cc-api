@@ -13,21 +13,19 @@ from gatey_sdk.integrations.flask import GateyFlaskMiddleware
 from gatey_sdk import Client
 
 
-def _create_app(environment: str = "development") -> Flask:
+def _create_app(for_testing: bool = False) -> Flask:
     """
     Creates initialized Flask Application.
-    :parma str environment: controls config types. May be 'development', 'production' or 'testing'
+    :param bool for_testing: if true, app uses testing config with testing database.
     """
     _app = Flask(import_name=__name__)
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
-    from app.config import ConfigDevelopment
-    if environment == "development":
-        _app.config.from_object(ConfigDevelopment)
-    elif environment == "testing":
-        _app.config.from_object(ConfigTesting)
-    elif environment == "production":
-        _app.config.from_object(ConfigProduction)
+    from app.config import Config, ConfigTesting
+    if for_testing:
+        app.config.from_object(ConfigTesting)
+    else:
+        app.config.from_object(Config)
 
     _app.json.sort_keys = False
 

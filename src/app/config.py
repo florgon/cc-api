@@ -9,11 +9,13 @@ class Config:
     """
     Base config for app.
     """
+    DEBUG = os.getenv("DEBUG", True)
 
-    SECRET_KEY = "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t"
+    SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t")
     FLASK_SECRET_KEY = SECRET_KEY
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
 
     HASHIDS_SALT = os.getenv(
         "HASHIDS_SALT",
@@ -29,25 +31,10 @@ class Config:
     SSO_API_METHOD = "secure.checkAccessToken"
 
 
-class ConfigDevelopment(Config):
-    """
-    Config, that should be used for development purposes.
-    """
-
-    DEBUG = True
-
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
-
-class ConfigProduction(Config):
-    """
-    Config, that should be used for production.
-    """
-
-    DEBUG = False
-
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
-
 class ConfigTesting(Config):
+    """
+    Config that should uses in tests.
+    """
     TESTING = True
 
-    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_DSN")
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_DSN") # noqa 
