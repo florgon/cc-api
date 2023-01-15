@@ -7,7 +7,6 @@
 
 from flask import Flask
 from flask_cors import CORS
-from app.config import ConfigProduction, ConfigTesting
 
 from gatey_sdk.integrations.flask import GateyFlaskMiddleware
 from gatey_sdk import Client
@@ -23,9 +22,9 @@ def _create_app(for_testing: bool = False) -> Flask:
 
     from app.config import Config, ConfigTesting
     if for_testing:
-        app.config.from_object(ConfigTesting)
+        _app.config.from_object(ConfigTesting)
     else:
-        app.config.from_object(Config)
+        _app.config.from_object(Config)
 
     _app.json.sort_keys = False
 

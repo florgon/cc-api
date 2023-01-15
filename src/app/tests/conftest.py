@@ -14,7 +14,7 @@ def app():  # pylint: disable=redefined-outer-name
     Flask core application.
     """
     _app: Flask = _create_app(for_testing=True)
-    with app.app_context():
+    with _app.app_context():
         db.create_all()
         print("All tables in testing database was successfully created!")
 
