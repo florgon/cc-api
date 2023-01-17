@@ -27,7 +27,10 @@ def urls_index():
 
     if request.method == "POST":
         # Create new URL.
-        long_url = request.form.get("url", "")
+        if request.is_json:
+            long_url = request.get_json().get("url", "")
+        else:
+            long_url = request.form.get("url", "")
         validate_url(long_url)
 
         stats_is_public = request.form.get(
