@@ -18,11 +18,9 @@ def _create_app() -> Flask:
     Creates initialized Flask Application.
     """
     _app = Flask(import_name=__name__)
-
-    gunicorn_error_logger = logging.getLogger("gunicorn.error")
-    app.logger.handlers.extend(gunicorn_error_logger.handlers)
-    app.logger.setLevel(logging.DEBUG)
-    app.logger.debug("Flask logging was hooked up.")
+    _app.logger.handlers.extend(logging.getLogger("gunicorn.error").handlers)
+    _app.logger.setLevel(logging.DEBUG)
+    _app.logger.debug("Flask logging was hooked up.")
 
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
