@@ -5,6 +5,7 @@
     Used to be run with Gunicorn or externally with Docker.
 """
 
+import logging
 from flask import Flask
 from flask_cors import CORS
 
@@ -17,6 +18,12 @@ def _create_app() -> Flask:
     Creates initialized Flask Application.
     """
     _app = Flask(import_name=__name__)
+
+    gunicorn_error_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers.extend(gunicorn_error_logger.handlers)
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.debug("Flask logging was hooked up.")
+
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
     from app.config import ConfigDevelopment
