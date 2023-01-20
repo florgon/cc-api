@@ -55,6 +55,12 @@ def validate_url_owner(url: Url, owner_id: int | None) -> None:
 
 
 def is_accessed_to_stats(url: Url, owner_id: int | None):
+    """
+    Checks that user with owner_id has access to url stats.
+    :param Url url: url object
+    :param int owner_id: user id
+    :return: True if has access, else False
+    """
     if url.stats_is_public:
         return True
 

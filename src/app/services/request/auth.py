@@ -4,7 +4,7 @@
     Root handler for authentication decode.
 """
 from typing import Any
-from requests import request, Response
+from requests import request
 from requests.exceptions import JSONDecodeError
 
 from flask import current_app, request as flask_request
@@ -160,11 +160,11 @@ def _check_token_with_sso_server(token: str) -> dict[str, Any]:
 
     try:
         response = request("GET", url, params=params).json()
-    except JSONDecodeError:
+    except JSONDecodeError as e:
         raise ApiErrorException(
             ApiErrorCode.API_EXTERNAL_SERVER_ERROR,
             "Unable to process your request due to server being down!",
-        )
+        ) from e 
 
     _check_sso_server_response(response)
     return response
@@ -179,7 +179,7 @@ def _check_sso_server_response(response: dict[str, Any]) -> None:
         error_code = response["error"]["code"]
         error_message = response["error"]["message"]
 
-        if error_code == 10 or error_code == 20:  # AUTH_INVALID_TOKEN
+        if error_code in (10, 20):  # AUTH_INVALID_TOKEN
             raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, error_message)
 
         if error_code == 11:  # AUTH_EXPIRED_TOKEN

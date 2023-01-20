@@ -58,17 +58,26 @@ class TestParsePermissionsFromScope:
 
     @staticmethod
     def test_with_scope_with_wrong_type():
+        """
+        Tests that function raises TypeError if wrong type scope passed.
+        """
         with pytest.raises(TypeError):
             parse_permissions_from_scope(scope=1)
 
     @staticmethod
     def test_with_wrong_permission_in_scope():
+        """
+        Tests that function deletes all unknown permissions from scope.
+        """
         assert parse_permissions_from_scope(scope="cc,undefinedpermission") == [
             Permission.cc
         ]
 
     @staticmethod
     def test_with_normal_scope():
+        """
+        Tests that function will return all permssions from normal scope.
+        """
         assert parse_permissions_from_scope(scope="cc,email") == [
             Permission.cc,
             Permission.email,
@@ -76,6 +85,9 @@ class TestParsePermissionsFromScope:
 
     @staticmethod
     def test_with_grant_all_tag_scope():
+        """
+        Tests that function returns all permssions if '*' is passed as scope.
+        """
         assert (
             parse_permissions_from_scope(scope=SCOPE_PERMISSION_GRANT_ALL_TAG)
             == SCOPE_ALL_PERMISSIONS

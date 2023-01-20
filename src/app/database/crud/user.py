@@ -6,6 +6,12 @@ from app.database.models.user import User
 
 
 def get_or_create(db: SQLAlchemy, user_id: int) -> User:
+    """
+    If local user with user_id exists in database, return it. Else create new user.
+    :param SQLAlchemy db: database object
+    :param int user_id: user id
+    :return: User object
+    """
     user = get_by_user_id(user_id=user_id)
     if not user:
         user = create(db=db, user_id=user_id)

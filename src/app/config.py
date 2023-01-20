@@ -9,7 +9,7 @@ class Config:
     """
     Base config for app.
     """
-    DEBUG = os.getenv("DEBUG", True)
+    DEBUG = bool(os.getenv("DEBUG", True))
 
     SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t")
     FLASK_SECRET_KEY = SECRET_KEY
@@ -37,4 +37,4 @@ class ConfigTesting(Config):
     """
     TESTING = True
 
-    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_DSN") # noqa 
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_DSN") # noqa

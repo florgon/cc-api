@@ -193,7 +193,7 @@ def short_url_stats(url_hash: str):
     if not short_url.stats_is_public:
         auth_data = query_auth_data_from_request(db=db)
         validate_url_owner(short_url, owner_id=auth_data.user_id)
-        
+
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):
