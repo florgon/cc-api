@@ -164,7 +164,7 @@ def _check_token_with_sso_server(token: str) -> dict[str, Any]:
         raise ApiErrorException(
             ApiErrorCode.API_EXTERNAL_SERVER_ERROR,
             "Unable to process your request due to server being down!",
-        ) from e 
+        ) from e
 
     _check_sso_server_response(response)
     return response
