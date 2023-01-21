@@ -40,3 +40,14 @@ def create(
     db.session.refresh(url_view)
 
     return url_view
+
+
+def delete_by_url_id(db: SQLAlchemy, url_id: int) -> None:
+    """
+    Deletes url views with specified url_id.
+    :param SQLAlchemy db: database object
+    :param int url_id: id of short url
+    """
+    UrlView.query.filter_by(url_id=url_id).delete()
+
+    db.session.commit()

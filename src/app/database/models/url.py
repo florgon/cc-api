@@ -23,6 +23,7 @@ class Url(db.Model, CommonMixin, TimestampMixin):
     )
     stats_is_public = db.Column(db.Boolean, default=False)
     is_deleted = db.Column(db.Boolean, default=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
 
     views = db.relationship("UrlView", backref="url", lazy="dynamic", uselist=True)
 

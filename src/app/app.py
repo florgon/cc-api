@@ -13,9 +13,10 @@ from gatey_sdk.integrations.flask import GateyFlaskMiddleware
 from gatey_sdk import Client
 
 
-def _create_app() -> Flask:
+def _create_app(for_testing: bool = False) -> Flask:
     """
     Creates initialized Flask Application.
+    :param bool for_testing: if true, app uses testing config with testing database.
     """
     _app = Flask(import_name=__name__)
     _app.logger.handlers.extend(logging.getLogger("gunicorn.error").handlers)
@@ -24,9 +25,12 @@ def _create_app() -> Flask:
 
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
-    from app.config import ConfigDevelopment
+    from app.config import Config, ConfigTesting
+    if for_testing:
+        _app.config.from_object(ConfigTesting)
+    else:
+        _app.config.from_object(Config)
 
-    _app.config.from_object(ConfigDevelopment)
     _app.json.sort_keys = False
 
     from app.database.core import (

@@ -54,13 +54,19 @@ def get_url_views_count_by_referers(
     not_null_referer_views_count = sum(x[1] for x in referers)
     null_referer_views_count = all_views_count - not_null_referer_views_count
 
-    referers.append(("untracked", null_referer_views_count))
     if value_as == "percent":
         formatted_referers = {
             x[0]: _get_percentage(all_views_count, x[1]) for x in referers
         }
     else:
         formatted_referers = dict(referers)
+
+    if null_referer_views_count > 0:
+        formatted_referers["untracked"] = (
+            _get_percentage(all_views_count, null_referer_views_count)
+            if value_as == "percent"
+            else null_referer_views_count
+        )
 
     return formatted_referers
 

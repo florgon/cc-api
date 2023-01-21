@@ -34,8 +34,14 @@ def serialize_url(
     }
 
     if include_stats:
-        # TODO: Stats (url) displaying
-        pass
+        serialized_url["_links"]["stats"] = {
+            "href": url_for(
+                "urls.short_url_stats",
+                url_hash=url.hash,
+                _external=True,
+                _scheme="https",
+            )
+        }
 
     if in_list:
         return serialized_url

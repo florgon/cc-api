@@ -39,3 +39,34 @@ def validate_short_url(url: Url | None) -> Url:
         raise ApiErrorException(ApiErrorCode.API_FORBIDDEN, "url is expired!")
 
     return url
+
+
+def validate_url_owner(url: Url, owner_id: int | None) -> None:
+    """
+    Checks that url is owned by user with owner_id
+    :param Url url: short url object
+    :param int owner_id: id of owner
+    :raises ApiErrorException: when url is not owned by user
+    """
+    if owner_id != url.owner_id or owner_id is None:
+        raise ApiErrorException(
+            ApiErrorCode.API_FORBIDDEN, "you are not owner of this url!"
+        )
+
+
+def is_accessed_to_stats(url: Url, owner_id: int | None):
+    """
+    Checks that user with owner_id has access to url stats.
+    :param Url url: url object
+    :param int owner_id: user id
+    :return: True if has access, else False
+    """
+    if url.stats_is_public:
+        return True
+
+    try:
+        validate_url_owner(url=url, owner_id=owner_id)
+    except ApiErrorException:
+        return False
+
+    return True

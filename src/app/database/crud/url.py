@@ -8,11 +8,17 @@ from hashids import Hashids
 from app.database.models.url import Url
 
 
-def create_url(db: SQLAlchemy, redirect_url: str, stats_is_public: bool = False) -> Url:
+def create_url(
+    db: SQLAlchemy,
+    redirect_url: str,
+    stats_is_public: bool = False,
+    owner_id: int | None = None,
+) -> Url:
     """
     Creates new shortened url in database.
     :param SQLAlchemy db: database object
     :param str redirect_url: long url for redirecting
+    :param int | None owner_id: id of local user
     :return: created url object
     :rtype: Url
     """
@@ -25,6 +31,7 @@ def create_url(db: SQLAlchemy, redirect_url: str, stats_is_public: bool = False)
     url = Url(
         redirect=redirect_url,
         stats_is_public=stats_is_public,
+        owner_id=owner_id,
     )
 
     db.session.add(url)
@@ -62,21 +69,6 @@ def get_by_hash(url_hash: str, only_active: bool = True) -> Url | None:
     if only_active:
         url = url.filter_by(is_deleted=False)
     return url.first()
-
-
-def add_view(db: SQLAlchemy, url: Url) -> Url:
-    """
-    Adds view to url stats before redirecting.
-    :param SQLAlchemy db: database object
-    :param Url url: url object
-    :return: updated url object
-    :rtype: Url
-    """
-    url.views += 1
-    db.session.commit()
-    db.session.refresh(url)
-
-    return url
 
 
 def delete(db: SQLAlchemy, url: Url) -> None:
