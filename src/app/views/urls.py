@@ -17,7 +17,10 @@ from app.services.url import (
     validate_url,
     validate_url_owner,
 )
-from app.services.request.auth import query_auth_data_from_request, try_query_auth_data_from_request
+from app.services.request.auth import (
+    query_auth_data_from_request,
+    try_query_auth_data_from_request,
+)
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -59,7 +62,8 @@ def urls_index():
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
         return api_success(serialize_url(url, include_stats=include_stats))
 
-    urls = crud.url.get_all()
+    auth_data = query_auth_data_from_request(db=db)
+    urls = crud.url.get_by_owner_id(owner_id=auth_data.user_id)
     return api_success(serialize_urls(urls, include_stats=False))
 
 
@@ -196,7 +200,6 @@ def short_url_stats(url_hash: str):
     if not short_url.stats_is_public:
         auth_data = query_auth_data_from_request(db=db)
         validate_url_owner(short_url, owner_id=auth_data.user_id)
-
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     if referer_views_value_as not in ("percent", "number"):
