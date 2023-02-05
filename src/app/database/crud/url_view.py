@@ -3,6 +3,7 @@
 """
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql.expression import func
 
 from app.database.models.url import Url
 from app.database.models.url_view import UrlView
@@ -51,3 +52,37 @@ def delete_by_url_id(db: SQLAlchemy, url_id: int) -> None:
     UrlView.query.filter_by(url_id=url_id).delete()
 
     db.session.commit()
+
+
+def get_by_dates(db: SQLAlchemy, url_id: int, value_as: str = "percent") -> dict[str, int]:
+    """
+    Return url views count or percentage by dates.
+    :param SQLAlchemy db: database object
+    :param int url_id: id of short url
+    :param str value_as: controls how to present value of views. Can be:
+        `percent` - (default) percentage of views. Return value can be from 1 to 100.
+        `number` - number of views.
+    :return: dict like {'23-09-2023': 23, '24-09-2023': 12, ...}
+    :rtype: dict[str, int]
+    """
+    dates = (
+        db.session.query(func.date(UrlView.created_at), func.count())
+        .filter_by(url_id=url_id)
+        .group_by(func.date(UrlView.created_at))
+        .all()
+    )
+    all_views_count = sum(x[1] for x in dates)
+    if value_as == "percent":
+        formatted_dates = {str(x[0]): _get_percentage(all_views_count, x[1]) for x in dates}
+    else:
+        formatted_dates = dict(dates)
+    
+    return formatted_dates
+
+
+def _get_percentage(whole: int, part: int) -> int:
+    """
+    Returns the percentage of a part of the whole.
+    """
+    return round(part / whole * 100)
+

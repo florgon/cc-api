@@ -211,8 +211,20 @@ def short_url_stats(url_hash: str):
         db=db, url=short_url, value_as=referer_views_value_as
     )
 
+    dates_views_value_as = request.args.get("dates_views_value_as", "percent")
+    if dates_views_value_as not in ("percent", "number"):
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`dates_views_value_as` must be a `percent` or `number`!",
+        )
+    dates = crud.url_view.get_by_dates(
+        db=db, url_id=short_url.id, value_as=dates_views_value_as,
+    )
+
     response = {"views": {"total": short_url.views.count()}}
     if referers:
         response["views"]["by_referers"] = referers
+    if dates:
+        response["views"]["by_dates"] = dates
 
     return api_success(response)
