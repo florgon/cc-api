@@ -207,8 +207,8 @@ def short_url_stats(url_hash: str):
             ApiErrorCode.API_INVALID_REQUEST,
             "`referer_views_value_as` must be a `percent` or `number`!",
         )
-    referers = crud.referer.get_url_views_count_by_referers(
-        db=db, url=short_url, value_as=referer_views_value_as
+    referers = crud.url_view.get_referers(
+        db=db, url_id=short_url.id, value_as=referer_views_value_as,
     )
 
     dates_views_value_as = request.args.get("dates_views_value_as", "percent")
@@ -217,7 +217,7 @@ def short_url_stats(url_hash: str):
             ApiErrorCode.API_INVALID_REQUEST,
             "`dates_views_value_as` must be a `percent` or `number`!",
         )
-    dates = crud.url_view.get_by_dates(
+    dates = crud.url_view.get_dates(
         db=db, url_id=short_url.id, value_as=dates_views_value_as,
     )
 

@@ -7,6 +7,7 @@ from sqlalchemy.sql.expression import func
 
 from app.database.models.url import Url
 from app.database.models.url_view import UrlView
+from app.database.models.referer import Referer
 from app.database import crud
 
 
@@ -54,9 +55,9 @@ def delete_by_url_id(db: SQLAlchemy, url_id: int) -> None:
     db.session.commit()
 
 
-def get_by_dates(db: SQLAlchemy, url_id: int, value_as: str = "percent") -> dict[str, int]:
+def get_dates(db: SQLAlchemy, url_id: int, value_as: str = "percent") -> dict[str, int]:
     """
-    Return url views count or percentage by dates.
+    Returns url views count or percentage by dates.
     :param SQLAlchemy db: database object
     :param int url_id: id of short url
     :param str value_as: controls how to present value of views. Can be:
@@ -73,12 +74,58 @@ def get_by_dates(db: SQLAlchemy, url_id: int, value_as: str = "percent") -> dict
     )
     all_views_count = sum(x[1] for x in dates)
     if value_as == "percent":
-        formatted_dates = {str(x[0]): _get_percentage(all_views_count, x[1]) for x in dates}
+        formatted_dates = {
+            str(date): _get_percentage(all_views_count, count)
+            for date, count in dates
+        }
     else:
         formatted_dates = dict(dates)
     
     return formatted_dates
 
+
+def get_referers(
+    db: SQLAlchemy, url_id: int, value_as: str = "percent"
+) -> dict[str, int]:
+    """
+    Returns url views count or percentage by referers.
+    :param SQLAlchemy db: database object
+    :param Url url: id of short_url
+    :param str value_as: type of result dict's value. Can be:
+        `percent` - (default) percentage of clicks with referer.
+        Returned value is int and it is limited from 1 to 100.
+        `number` - number of clicks with referer. Returned value is int.
+    :return: dict like {'https://away.vk.com/': 45, ...} with value as specified in `value_as` parameter
+    :rtype: dict[str, int]
+    """
+
+    # NOTE: Is there a better solution for this query?
+    referers = (
+        db.session.query(Referer.referer_value, func.count())
+        .filter(UrlView.url_id == url_id, UrlView.referer_id == Referer.id)
+        .group_by(UrlView.referer_id, Referer.referer_value)
+        .all()
+    )
+    all_views_count = UrlView.query.filter_by(url_id=url_id).count()
+    not_null_referer_views_count = sum(x[1] for x in referers)
+    null_referer_views_count = all_views_count - not_null_referer_views_count
+
+    if value_as == "percent":
+        formatted_referers = {
+            referer: _get_percentage(all_views_count, count)
+            for referer, count in referers
+        }
+    else:
+        formatted_referers = dict(referers)
+
+    if null_referer_views_count > 0:
+        formatted_referers["untracked"] = (
+            _get_percentage(all_views_count, null_referer_views_count)
+            if value_as == "percent"
+            else null_referer_views_count
+        )
+
+    return formatted_referers
 
 def _get_percentage(whole: int, part: int) -> int:
     """
