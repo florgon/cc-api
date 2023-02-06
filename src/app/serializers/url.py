@@ -5,11 +5,11 @@ from typing import Any
 
 from flask import url_for
 
-from app.database.models.url import Url
+from app.database.models.url import RedirectUrl
 
 
 def serialize_url(
-    url: Url, *, include_stats=False, in_list: bool = False
+    url: RedirectUrl, *, include_stats=False, in_list: bool = False
 ) -> dict[str, Any]:
     """
     Serializes url object to dict for the response.
@@ -50,7 +50,7 @@ def serialize_url(
 
 
 def serialize_urls(
-    urls: list[Url],
+    urls: list[RedirectUrl],
     *,
     include_stats: bool = False,
 ) -> dict[str, Any]:

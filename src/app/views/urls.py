@@ -52,7 +52,7 @@ def urls_index():
         else:
             owner_id = None
 
-        url = crud.url.create_url(
+        url = crud.redirect_url.create_url(
             db=db,
             redirect_url=long_url,
             stats_is_public=stats_is_public,
@@ -63,7 +63,7 @@ def urls_index():
         return api_success(serialize_url(url, include_stats=include_stats))
 
     auth_data = query_auth_data_from_request(db=db)
-    urls = crud.url.get_by_owner_id(owner_id=auth_data.user_id)
+    urls = crud.redirect_url.get_by_owner_id(owner_id=auth_data.user_id)
     return api_success(serialize_urls(urls, include_stats=False))
 
 
@@ -76,14 +76,14 @@ def short_url_index(url_hash: str):
         DELETE: Deletes url
         PATCH: Updates url
     """
-    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
     _, auth_data = try_query_auth_data_from_request(db=db)
 
     if request.method == "DELETE":
         validate_url_owner(
             url=short_url, owner_id=auth_data.user_id if auth_data else None
         )
-        crud.url.delete(db=db, url=short_url)
+        crud.redirect_url.delete(db=db, url=short_url)
         return Response(status=204)
 
     if request.method == "PATCH":
@@ -106,7 +106,7 @@ def generate_qr_code_for_url(url_hash: str):
     TODO: Custom logo for QR.
     """
     response_as = request.args.get("as", "svg")
-    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
     if response_as not in ("svg", "txt", "png"):
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
@@ -166,7 +166,7 @@ def open_short_url(url_hash: str):
     """
     Redirects user to long redirect url.
     """
-    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
 
     if "X-Forwarded-For" in request.headers:
         remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(" ")[-1]
@@ -174,7 +174,7 @@ def open_short_url(url_hash: str):
         remote_addr = request.remote_addr or "untrackable"
     user_agent = request.user_agent.string
     referer = request.headers.get("Referer")
-    crud.url_view.create(
+    crud.redirect_url.create(
         db=db, url=short_url, ip=remote_addr, user_agent=user_agent, referer=referer
     )
 
@@ -189,12 +189,12 @@ def short_url_stats(url_hash: str):
         GET: get url statistics
         DELETE: clear url statistics
     """
-    short_url = validate_short_url(crud.url.get_by_hash(url_hash=url_hash))
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
 
     if request.method == "DELETE":
         auth_data = query_auth_data_from_request(db=db)
         validate_url_owner(short_url, owner_id=auth_data.user_id)
-        crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
+        crud.redirect_url.delete_by_url_id(db=db, url_id=short_url.id)
         return Response(status=204)
 
     if not short_url.stats_is_public:
@@ -207,7 +207,7 @@ def short_url_stats(url_hash: str):
             ApiErrorCode.API_INVALID_REQUEST,
             "`referer_views_value_as` must be a `percent` or `number`!",
         )
-    referers = crud.url_view.get_referers(
+    referers = crud.redirect_url.get_referers(
         db=db, url_id=short_url.id, value_as=referer_views_value_as,
     )
 
@@ -217,7 +217,7 @@ def short_url_stats(url_hash: str):
             ApiErrorCode.API_INVALID_REQUEST,
             "`dates_views_value_as` must be a `percent` or `number`!",
         )
-    dates = crud.url_view.get_dates(
+    dates = crud.redirect_url.get_dates(
         db=db, url_id=short_url.id, value_as=dates_views_value_as,
     )
 

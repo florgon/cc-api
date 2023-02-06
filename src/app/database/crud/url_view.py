@@ -5,21 +5,21 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql.expression import func
 
-from app.database.models.url import Url
+from app.database.models.url import RedirectUrl
 from app.database.models.url_view import UrlView
 from app.database.models.referer import Referer
 from app.database import crud
 
 
 def create(
-    db: SQLAlchemy, ip: str, user_agent: str, url: Url, referer: str | None
+    db: SQLAlchemy, ip: str, user_agent: str, url: RedirectUrl, referer: str | None
 ) -> UrlView:
     """
     Adds url view to `url` with passed params
     :param SQLAlchemy db: database object
     :param str ip: ipv4 user address
     :param str user_agent: user agent from `User-Agent` header
-    :param Url url: viewed url
+    :param RedirectUrl url: viewed url
     :param str|None referer: referer from `Referer` header
     :return: created url view
     :rtype: UrlView
@@ -90,7 +90,7 @@ def get_referers(
     """
     Returns url views count or percentage by referers.
     :param SQLAlchemy db: database object
-    :param Url url: id of short_url
+    :param RedirectUrl url: id of short_url
     :param str value_as: type of result dict's value. Can be:
         `percent` - (default) percentage of clicks with referer.
         Returned value is int and it is limited from 1 to 100.
