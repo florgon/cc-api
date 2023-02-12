@@ -5,19 +5,21 @@ from typing import Any
 
 from flask import url_for
 
-from app.database.models.url import RedirectUrl
+from app.database.models.url import RedirectUrl, PasteUrl
+from app.database.mixins import UrlMixin
 
 
 def serialize_url(
-    url: RedirectUrl, *, include_stats=False, in_list: bool = False
+    url: UrlMixin, *, include_stats=False, in_list: bool = False
 ) -> dict[str, Any]:
     """
     Serializes url object to dict for the response.
     """
     serialized_url = {
         "id": url.id,
-        "redirect_url": url.redirect,
         "hash": url.hash,
+        "redirect_url": None,
+        "text": None,
         "expires_at": url.expiration_date.timestamp(),
         "stats_is_public": url.stats_is_public,
         "is_deleted": url.is_deleted,
@@ -32,6 +34,12 @@ def serialize_url(
             },
         },
     }
+    if isinstance(url, RedirectUrl):
+        serialized_url["redirect_url"] = url.redirect
+        serialized_url.pop("text")
+    if isinstance(url, PasteUrl):
+        serialized_url["text"] = url.content
+        serialized_url.pop("redirect_url")
 
     if include_stats:
         serialized_url["_links"]["stats"] = {
@@ -45,8 +53,10 @@ def serialize_url(
 
     if in_list:
         return serialized_url
-
-    return {"url": serialized_url}
+    if isinstance(url, RedirectUrl):
+        return {"url": serialized_url}
+    if isinstance(url, PasteUrl):
+        return {"paste": serialized_url}
 
 
 def serialize_urls(

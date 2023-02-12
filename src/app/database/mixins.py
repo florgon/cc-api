@@ -47,13 +47,8 @@ class UrlMixin:
     is_deleted = db.Column(db.Boolean, default=False)
     owner_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
 
-    @declared_attr
-    def views(self):
-        return db.relationship("UrlView", backref="url", lazy="dynamic", uselist=True)
-
     
     @property
-    @declared_attr
     def hash(self) -> str:  # pylint: disable=redefined-builtin
         """
         Returns hash based on model id.

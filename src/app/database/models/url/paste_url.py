@@ -13,3 +13,4 @@ class PasteUrl(db.Model, CommonMixin, TimestampMixin, UrlMixin):
     """
     content = db.Column(db.Text, nullable=False)
 
+    views = db.relationship("UrlView", backref="paste", lazy="dynamic", uselist=True)
