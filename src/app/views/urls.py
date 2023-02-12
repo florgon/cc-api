@@ -87,7 +87,7 @@ def short_url_index(url_hash: str):
         return Response(status=204)
 
     if request.method == "PATCH":
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
         )
 
