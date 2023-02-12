@@ -60,7 +60,7 @@ def serialize_url(
 
 
 def serialize_urls(
-    urls: list[RedirectUrl],
+    urls: list[UrlMixin],
     *,
     include_stats: bool = False,
 ) -> dict[str, Any]:
@@ -77,3 +77,20 @@ def serialize_urls(
             for url in urls
         ]
     }
+
+
+def serialize_pastes(
+    pastes: list[PasteUrl],
+    *,
+    include_stats: bool = False,
+) -> dict[str, Any]:
+    """
+    Serializes list of PasteUrls to dict for the response.
+    NOTE: The purpose of creating this function is that if you pass an empty list of urls to the
+    serialize_urls function, it would not be able to determine the type of link (RedirectUrl or PasteUrl?)
+    """
+    pastes = serialize_urls(pastes, include_stats=include_stats)
+    pastes["pastes"] = pastes["urls"]
+    pastes.pop("urls")
+    return pastes
+

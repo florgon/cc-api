@@ -30,3 +30,12 @@ def create_url(
     db.session.refresh(url)
 
     return url
+
+
+def get_by_owner_id(owner_id: int) -> list[PasteUrl]:
+    """
+    Returns PasteUrls with specified owner_id.
+    :return: List with URLs.
+    :rtpye: list[PasteUrl]
+    """
+    return PasteUrl.query.filter_by(owner_id=owner_id)

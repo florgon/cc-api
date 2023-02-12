@@ -6,8 +6,8 @@ import pydantic
 
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.services.api.response import api_success
-from app.serializers.url import serialize_url
-from app.services.request.auth import try_query_auth_data_from_request
+from app.serializers.url import serialize_url, serialize_pastes
+from app.services.request.auth import try_query_auth_data_from_request, query_auth_data_from_request
 from app.services.url import is_accessed_to_stats
 from app.database import db, crud
 
@@ -32,6 +32,8 @@ def pastes_index():
 
         if len(text) < 10:
             raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "Paste text must be at least 10 characters length!")
+        elif len(text) > 4096:
+            raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "Paste text must be less than 4096 characters length!")
 
         stats_is_public = request.form.get(
             "stats_is_public", False, type=lambda i: pydantic.parse_obj_as(bool, i)
@@ -52,4 +54,8 @@ def pastes_index():
 
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
         return api_success(serialize_url(url, include_stats=include_stats))
+
+    auth_data = query_auth_data_from_request(db=db)
+    urls = crud.paste_url.get_by_owner_id(owner_id=auth_data.user_id)
+    return api_success(serialize_pastes(urls, include_stats=False))
 
