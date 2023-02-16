@@ -8,6 +8,7 @@ from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.services.api.response import api_success
 from app.serializers.url import serialize_url, serialize_pastes
 from app.services.request.auth import try_query_auth_data_from_request, query_auth_data_from_request
+from app.services.request.params import get_post_param
 from app.services.url import is_accessed_to_stats, validate_short_url, validate_url_owner
 from app.database import db, crud
 
@@ -25,19 +26,13 @@ def pastes_index():
     """
 
     if request.method == "POST":
-        if request.is_json:
-            text = request.get_json().get("text", "")
-        else:
-            text = request.form.get("text", "")
-
+        text = get_post_param("text")
         if len(text) < 10:
             raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "Paste text must be at least 10 characters length!")
         elif len(text) > 4096:
             raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "Paste text must be less than 4096 characters length!")
 
-        stats_is_public = request.form.get(
-            "stats_is_public", False, type=lambda i: pydantic.parse_obj_as(bool, i)
-        )
+        stats_is_public = get_post_param("stats_is_public", "False", bool)
 
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
         if is_authorized and auth_data:
@@ -62,7 +57,7 @@ def pastes_index():
 
 
 @bp_pastes.route("/<url_hash>/", methods=["GET", "DELETE", "PATCH"])
-def short_url_index(url_hash: str):
+def paste_index(url_hash: str):
     """
     Paste url index resource.
     Methods:
@@ -77,7 +72,7 @@ def short_url_index(url_hash: str):
         validate_url_owner(
             url=short_url, owner_id=auth_data.user_id if auth_data else None
         )
-        crud.redirect_url.delete(db=db, url=short_url)
+        crud.paste_url.delete(db=db, url=short_url)
         return Response(status=204)
 
     if request.method == "PATCH":

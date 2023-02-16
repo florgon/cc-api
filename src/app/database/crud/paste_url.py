@@ -64,3 +64,12 @@ def get_by_hash(url_hash: str, only_active: bool = True) -> PasteUrl | None:
         url = url.filter_by(is_deleted=False)
     return url.first()
 
+
+def delete(db: SQLAlchemy, url: PasteUrl) -> None:
+    """
+    Deletes paste url and views.
+    :param SQLAlchemy db: database object
+    :param PasteUrl url: url object
+    """
+    url.is_deleted = True
+    db.session.commit()

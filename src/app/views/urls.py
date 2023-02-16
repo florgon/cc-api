@@ -10,6 +10,7 @@ import pyqrcode
 from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
+from app.services.request.params import get_post_param
 from app.database import crud, db
 from app.services.url import (
     is_accessed_to_stats,
@@ -36,15 +37,10 @@ def urls_index():
 
     if request.method == "POST":
         # Create new URL.
-        if request.is_json:
-            long_url = request.get_json().get("url", "")
-        else:
-            long_url = request.form.get("url", "")
+        long_url = get_post_param("long_url")
         validate_url(long_url)
 
-        stats_is_public = request.form.get(
-            "stats_is_public", False, type=lambda i: pydantic.parse_obj_as(bool, i)
-        )
+        stats_is_public = get_post_param("stats_is_public", "False", bool) 
 
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
         if is_authorized and auth_data:
@@ -194,7 +190,7 @@ def short_url_stats(url_hash: str):
     if request.method == "DELETE":
         auth_data = query_auth_data_from_request(db=db)
         validate_url_owner(short_url, owner_id=auth_data.user_id)
-        crud.redirect_url.delete_by_url_id(db=db, url_id=short_url.id)
+        crud.redirect_url.delete(db=db, url=short_url)
         return Response(status=204)
 
     if not short_url.stats_is_public:
@@ -207,7 +203,7 @@ def short_url_stats(url_hash: str):
             ApiErrorCode.API_INVALID_REQUEST,
             "`referer_views_value_as` must be a `percent` or `number`!",
         )
-    referers = crud.redirect_url.get_referers(
+    referers = crud.url_view.get_referers(
         db=db, url_id=short_url.id, value_as=referer_views_value_as,
     )
 
@@ -217,7 +213,7 @@ def short_url_stats(url_hash: str):
             ApiErrorCode.API_INVALID_REQUEST,
             "`dates_views_value_as` must be a `percent` or `number`!",
         )
-    dates = crud.redirect_url.get_dates(
+    dates = crud.url_view.get_dates(
         db=db, url_id=short_url.id, value_as=dates_views_value_as,
     )
 
