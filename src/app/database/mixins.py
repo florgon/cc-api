@@ -43,8 +43,8 @@ class UrlMixin:
     expiration_date = db.Column(
         db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=14)
     )
-    stats_is_public = db.Column(db.Boolean, default=False)
     is_deleted = db.Column(db.Boolean, default=False)
+    stats_is_public = db.Column(db.Boolean, default=False)
     owner_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
 
     
