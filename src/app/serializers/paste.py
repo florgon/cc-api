@@ -8,7 +8,7 @@ from flask import url_for
 from app.database.models.url import PasteUrl
 
 
-def serialize_paste(url: PasteUrl, *, in_list: bool = False) -> dict[str, Any]:
+def serialize_paste(url: PasteUrl, *, include_stats: bool = False, in_list: bool = False) -> dict[str, Any]:
     """
     Serializes PasteUrl object to dict for the response.
     """
@@ -17,8 +17,21 @@ def serialize_paste(url: PasteUrl, *, in_list: bool = False) -> dict[str, Any]:
         "hash": url.hash,
         "text": url.content,
         "expires_at": url.expiration_date.timestamp(),
+        "stats_is_public": url.stats_is_public,
         "is_deleted": url.is_deleted,
+        "_links": {},
     }
+
+    if include_stats:
+        serialized_url["_links"]["stats"] = {
+            "href": url_for(
+                "urls.short_url_stats",
+                url_hash=url.hash,
+                _external=True,
+                _scheme="https",
+            )
+        }
+
 
     if in_list:
         return serialized_url
