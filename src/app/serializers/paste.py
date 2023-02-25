@@ -41,6 +41,7 @@ def serialize_paste(url: PasteUrl, *, include_stats: bool = False, in_list: bool
 
 def serialize_pastes(
     urls: list[PasteUrl],
+    include_stats: bool = False,
 ) -> dict[str, Any]:
     """
     Serializes list of PasteUrl objects to dict for the response.
@@ -50,6 +51,7 @@ def serialize_pastes(
             serialize_paste(
                 url,
                 in_list=True,
+                include_stats=include_stats,
             )
             for url in urls
         ]

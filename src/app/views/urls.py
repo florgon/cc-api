@@ -170,7 +170,7 @@ def open_short_url(url_hash: str):
         remote_addr = request.remote_addr or "untrackable"
     user_agent = request.user_agent.string
     referer = request.headers.get("Referer")
-    crud.redirect_url.create(
+    crud.url_view.create(
         db=db, url=short_url, ip=remote_addr, user_agent=user_agent, referer=referer
     )
 

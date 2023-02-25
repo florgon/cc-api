@@ -6,7 +6,7 @@ import pydantic
 
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.services.api.response import api_success
-from app.serializers.url import serialize_url, serialize_pastes
+from app.serializers.paste import serialize_paste, serialize_pastes
 from app.services.request.auth import try_query_auth_data_from_request, query_auth_data_from_request
 from app.services.request.params import get_post_param
 from app.services.url import is_accessed_to_stats, validate_short_url, validate_url_owner
@@ -48,7 +48,7 @@ def pastes_index():
         )
 
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
-        return api_success(serialize_url(url, include_stats=include_stats))
+        return api_success(serialize_paste(url, include_stats=include_stats))
 
     auth_data = query_auth_data_from_request(db=db)
     urls = crud.paste_url.get_by_owner_id(owner_id=auth_data.user_id)
@@ -83,4 +83,15 @@ def paste_index(url_hash: str):
     include_stats = is_accessed_to_stats(
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
-    return api_success(serialize_url(short_url, include_stats=include_stats))
+    
+    if "X-Forwarded-For" in request.headers:
+        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(" ")[-1]
+    else:
+        remote_addr = request.remote_addr or "untrackable"
+    user_agent = request.user_agent.string
+    referer = request.headers.get("Referer")
+
+    crud.url_view.create(
+        db=db, paste=short_url, ip=remote_addr, referer=referer, user_agent=user_agent,
+    )
+    return api_success(serialize_paste(short_url, include_stats=include_stats))
