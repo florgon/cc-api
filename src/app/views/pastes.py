@@ -9,6 +9,7 @@ from app.services.api.response import api_success
 from app.serializers.paste import serialize_paste, serialize_pastes
 from app.services.request.auth import try_query_auth_data_from_request, query_auth_data_from_request
 from app.services.request.params import get_post_param
+from app.services.request.headers import get_ip
 from app.services.url import is_accessed_to_stats, validate_short_url, validate_url_owner
 from app.database import db, crud
 
@@ -84,10 +85,7 @@ def paste_index(url_hash: str):
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
     
-    if "X-Forwarded-For" in request.headers:
-        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(" ")[-1]
-    else:
-        remote_addr = request.remote_addr or "untrackable"
+    remote_addr = get_ip()
     user_agent = request.user_agent.string
     referer = request.headers.get("Referer")
 

@@ -99,7 +99,7 @@ def get_dates(
             for date, count in dates
         }
     else:
-        formatted_dates = dict(dates)
+        formatted_dates = {str(date): count for date, count in dates}
     
     return formatted_dates
 

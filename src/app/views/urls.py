@@ -8,9 +8,10 @@ import pydantic
 import pyqrcode
 
 from app.serializers.url import serialize_url, serialize_urls
-from app.services.api.errors import ApiErrorCode
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.request.params import get_post_param
+from app.services.request.headers import get_ip
 from app.database import crud, db
 from app.services.url import (
     is_accessed_to_stats,
@@ -163,11 +164,8 @@ def open_short_url(url_hash: str):
     Redirects user to long redirect url.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-
-    if "X-Forwarded-For" in request.headers:
-        remote_addr = request.headers.getlist("X-Forwarded-For")[0].rpartition(" ")[-1]
-    else:
-        remote_addr = request.remote_addr or "untrackable"
+    
+    remote_addr = get_ip()
     user_agent = request.user_agent.string
     referer = request.headers.get("Referer")
     crud.url_view.create(
