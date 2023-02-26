@@ -62,7 +62,16 @@ def delete_by_url_id(db: SQLAlchemy, url_id: int) -> None:
     :param int url_id: id of short url
     """
     UrlView.query.filter_by(url_id=url_id).delete()
+    db.session.commit()
 
+
+def delete_by_paste_id(db: SQLAlchemy, paste_id: int) -> None:
+    """
+    Deletes paste url views with specified paste_id.
+    :param SQLAlchemy db: database object
+    :param int paste_id: id of paste url
+    """
+    UrlView.query.filter_by(paste_id=paste_id).delete()
     db.session.commit()
 
 

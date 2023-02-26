@@ -109,7 +109,7 @@ def paste_url_stats(url_hash: str):
     if request.method == "DELETE":
         auth_data = query_auth_data_from_request(db=db)
         validate_url_owner(short_url, owner_id=auth_data.user_id)
-        crud.redirect_url.delete(db=db, url=short_url)
+        crud.url_view.delete_by_paste_id(db=db, paste_id=short_url.id)
         return Response(status=204)
 
     if not short_url.stats_is_public:
