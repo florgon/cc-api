@@ -97,7 +97,7 @@ def paste_index(url_hash: str):
 
 
 @bp_pastes.route("/<url_hash>/stats", methods=["GET", "DELETE"])
-def paste_url_stats(url_hash: str):
+def paste_stats(url_hash: str):
     """
     Returns stats for paste url.
     Methods:

@@ -25,12 +25,14 @@ def serialize_paste(url: PasteUrl, *, include_stats: bool = False, in_list: bool
     if include_stats:
         serialized_url["_links"]["stats"] = {
             "href": url_for(
-                "urls.short_url_stats",
+                "pastes.paste_stats",
                 url_hash=url.hash,
                 _external=True,
                 _scheme="https",
             )
         }
+    else:
+        serialized_url.pop("_links")
 
 
     if in_list:
