@@ -29,7 +29,7 @@ def create(
     :param str|None referer: referer from `Referer` header
     :return: created url view
     :rtype: UrlView
-    :raises TypeError: if passed both url 
+    :raises TypeError: if passed both url
     """
     if (url, paste).count(None) != 1:
         raise TypeError("Pass only url or only paste (not both)!")
@@ -104,12 +104,11 @@ def get_dates(
     all_views_count = sum(x[1] for x in dates)
     if value_as == "percent":
         formatted_dates = {
-            str(date): _get_percentage(all_views_count, count)
-            for date, count in dates
+            str(date): _get_percentage(all_views_count, count) for date, count in dates
         }
     else:
         formatted_dates = {str(date): count for date, count in dates}
-    
+
     return formatted_dates
 
 
@@ -137,7 +136,11 @@ def get_referers(
     # NOTE: Is there a better solution for this query?
     referers = (
         db.session.query(Referer.referer_value, func.count())
-        .filter(UrlView.url_id == url_id, UrlView.paste_id == paste_id, UrlView.referer_id == Referer.id)
+        .filter(
+            UrlView.url_id == url_id,
+            UrlView.paste_id == paste_id,
+            UrlView.referer_id == Referer.id,
+        )
         .group_by(UrlView.referer_id, Referer.referer_value)
         .all()
     )
@@ -162,9 +165,9 @@ def get_referers(
 
     return formatted_referers
 
+
 def _get_percentage(whole: int, part: int) -> int:
     """
     Returns the percentage of a part of the whole.
     """
     return round(part / whole * 100)
-

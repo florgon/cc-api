@@ -11,7 +11,6 @@ from sqlalchemy.orm import declared_attr
 from app.database import db
 
 
-
 class CommonMixin:
     """
     Mixin that provides basic id primary key and __tablename__ directive.
@@ -40,6 +39,7 @@ class UrlMixin:
     """
     Mixin that provides common url features like statisticts.
     """
+
     expiration_date = db.Column(
         db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=14)
     )
@@ -47,7 +47,6 @@ class UrlMixin:
     stats_is_public = db.Column(db.Boolean, default=False)
     owner_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
 
-    
     @property
     def hash(self) -> str:  # pylint: disable=redefined-builtin
         """

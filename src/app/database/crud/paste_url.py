@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from app.database.models.url import PasteUrl
 
+
 def create_url(
     db: SQLAlchemy,
     content: str,

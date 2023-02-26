@@ -9,9 +9,13 @@ class Config:
     """
     Base config for app.
     """
+
     DEBUG = bool(os.getenv("DEBUG", "True"))
 
-    SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t")
+    SECRET_KEY = os.getenv(
+        "FLASK_SECRET_KEY",
+        "hfd;g784r8hfigrjeunvior;e9trt964u8c73459w3;09byn904yboi4evuc;t",
+    )
     FLASK_SECRET_KEY = SECRET_KEY
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -35,6 +39,7 @@ class ConfigTesting(Config):
     """
     Config that should uses in tests.
     """
+
     TESTING = True
 
-    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_DSN") # noqa
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_DSN")  # noqa

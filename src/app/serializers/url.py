@@ -1,4 +1,3 @@
-
 """
     Serializers for url model.
 """

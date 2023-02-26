@@ -41,7 +41,7 @@ def urls_index():
         long_url = get_post_param("long_url")
         validate_url(long_url)
 
-        stats_is_public = get_post_param("stats_is_public", "False", bool) 
+        stats_is_public = get_post_param("stats_is_public", "False", bool)
 
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
         if is_authorized and auth_data:
@@ -164,7 +164,7 @@ def open_short_url(url_hash: str):
     Redirects user to long redirect url.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-    
+
     remote_addr = get_ip()
     user_agent = request.user_agent.string
     referer = request.headers.get("Referer")
@@ -202,7 +202,9 @@ def short_url_stats(url_hash: str):
             "`referer_views_value_as` must be a `percent` or `number`!",
         )
     referers = crud.url_view.get_referers(
-        db=db, url_id=short_url.id, value_as=referer_views_value_as,
+        db=db,
+        url_id=short_url.id,
+        value_as=referer_views_value_as,
     )
 
     dates_views_value_as = request.args.get("dates_views_value_as", "percent")
@@ -212,7 +214,9 @@ def short_url_stats(url_hash: str):
             "`dates_views_value_as` must be a `percent` or `number`!",
         )
     dates = crud.url_view.get_dates(
-        db=db, url_id=short_url.id, value_as=dates_views_value_as,
+        db=db,
+        url_id=short_url.id,
+        value_as=dates_views_value_as,
     )
 
     response = {"views": {"total": short_url.views.count()}}

@@ -26,6 +26,7 @@ def _create_app(for_testing: bool = False) -> Flask:
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
     from app.config import Config, ConfigTesting
+
     if for_testing:
         _app.config.from_object(ConfigTesting)
     else:

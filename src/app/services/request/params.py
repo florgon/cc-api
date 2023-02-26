@@ -8,6 +8,7 @@ import pydantic
 
 T = TypeVar("T")
 
+
 def get_post_param(name: str, default: str = "", type_: type | None = T) -> T:
     """
     Returns value of post request parameter (from post or from json).

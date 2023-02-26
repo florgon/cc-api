@@ -8,7 +8,9 @@ from flask import url_for
 from app.database.models.url import PasteUrl
 
 
-def serialize_paste(url: PasteUrl, *, include_stats: bool = False, in_list: bool = False) -> dict[str, Any]:
+def serialize_paste(
+    url: PasteUrl, *, include_stats: bool = False, in_list: bool = False
+) -> dict[str, Any]:
     """
     Serializes PasteUrl object to dict for the response.
     """
@@ -33,7 +35,6 @@ def serialize_paste(url: PasteUrl, *, include_stats: bool = False, in_list: bool
         }
     else:
         serialized_url.pop("_links")
-
 
     if in_list:
         return serialized_url
