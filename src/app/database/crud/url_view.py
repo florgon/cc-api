@@ -66,20 +66,29 @@ def delete_by_url_id(db: SQLAlchemy, url_id: int) -> None:
     db.session.commit()
 
 
-def get_dates(db: SQLAlchemy, url_id: int, value_as: str = "percent") -> dict[str, int]:
+def get_dates(
+    db: SQLAlchemy,
+    url_id: int | None = None,
+    paste_id: int | None = None,
+    value_as: str = "percent",
+) -> dict[str, int]:
     """
     Returns url views count or percentage by dates.
     :param SQLAlchemy db: database object
     :param int url_id: id of short url
+    :param int paste_id: id of paste short url
     :param str value_as: controls how to present value of views. Can be:
         `percent` - (default) percentage of views. Return value can be from 1 to 100.
         `number` - number of views.
     :return: dict like {'23-09-2023': 23, '24-09-2023': 12, ...}
     :rtype: dict[str, int]
     """
+    if (url_id, paste_id).count(None) != 1:
+        raise TypeError("Pass only url_id or only paste_id (not both)!")
+
     dates = (
         db.session.query(func.date(UrlView.created_at), func.count())
-        .filter_by(url_id=url_id)
+        .filter_by(url_id=url_id, paste_id=paste_id)
         .group_by(func.date(UrlView.created_at))
         .all()
     )
@@ -96,12 +105,16 @@ def get_dates(db: SQLAlchemy, url_id: int, value_as: str = "percent") -> dict[st
 
 
 def get_referers(
-    db: SQLAlchemy, url_id: int, value_as: str = "percent"
+    db: SQLAlchemy,
+    url_id: int | None = None,
+    paste_id: int | None = None,
+    value_as: str = "percent",
 ) -> dict[str, int]:
     """
     Returns url views count or percentage by referers.
     :param SQLAlchemy db: database object
-    :param RedirectUrl url: id of short_url
+    :param int|None url_id: id of short_url
+    :param int|None paste_id: id of paste url
     :param str value_as: type of result dict's value. Can be:
         `percent` - (default) percentage of clicks with referer.
         Returned value is int and it is limited from 1 to 100.
@@ -109,15 +122,17 @@ def get_referers(
     :return: dict like {'https://away.vk.com/': 45, ...} with value as specified in `value_as` parameter
     :rtype: dict[str, int]
     """
+    if (url_id, paste_id).count(None) != 1:
+        raise TypeError("Pass only url_id or only paste_id (not both)!")
 
     # NOTE: Is there a better solution for this query?
     referers = (
         db.session.query(Referer.referer_value, func.count())
-        .filter(UrlView.url_id == url_id, UrlView.referer_id == Referer.id)
+        .filter(UrlView.url_id == url_id, UrlView.paste_id == paste_id, UrlView.referer_id == Referer.id)
         .group_by(UrlView.referer_id, Referer.referer_value)
         .all()
     )
-    all_views_count = UrlView.query.filter_by(url_id=url_id).count()
+    all_views_count = UrlView.query.filter_by(url_id=url_id, paste_id=paste_id).count()
     not_null_referer_views_count = sum(x[1] for x in referers)
     null_referer_views_count = all_views_count - not_null_referer_views_count
 

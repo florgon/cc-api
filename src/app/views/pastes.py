@@ -29,7 +29,7 @@ def pastes_index():
         text = get_post_param("text")
         if len(text) < 10:
             raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "Paste text must be at least 10 characters length!")
-        elif len(text) > 4096:
+        if len(text) > 4096:
             raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "Paste text must be less than 4096 characters length!")
 
         stats_is_public = get_post_param("stats_is_public", "False", bool)
@@ -95,3 +95,53 @@ def paste_index(url_hash: str):
         db=db, paste=short_url, ip=remote_addr, referer=referer, user_agent=user_agent,
     )
     return api_success(serialize_paste(short_url, include_stats=include_stats))
+
+
+
+@bp_pastes.route("/<url_hash>/stats", methods=["GET", "DELETE"])
+def paste_url_stats(url_hash: str):
+    """
+    Returns stats for paste url.
+    Methods:
+        GET: get url statistics
+        DELETE: clear url statistics
+    """
+    short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
+
+    if request.method == "DELETE":
+        auth_data = query_auth_data_from_request(db=db)
+        validate_url_owner(short_url, owner_id=auth_data.user_id)
+        crud.redirect_url.delete(db=db, url=short_url)
+        return Response(status=204)
+
+    if not short_url.stats_is_public:
+        auth_data = query_auth_data_from_request(db=db)
+        validate_url_owner(short_url, owner_id=auth_data.user_id)
+
+    referer_views_value_as = request.args.get("referer_views_value_as", "percent")
+    if referer_views_value_as not in ("percent", "number"):
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`referer_views_value_as` must be a `percent` or `number`!",
+        )
+    referers = crud.url_view.get_referers(
+        db=db, paste_id=short_url.id, value_as=referer_views_value_as,
+    )
+
+    dates_views_value_as = request.args.get("dates_views_value_as", "percent")
+    if dates_views_value_as not in ("percent", "number"):
+        return ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`dates_views_value_as` must be a `percent` or `number`!",
+        )
+    dates = crud.url_view.get_dates(
+        db=db, paste_id=short_url.id, value_as=dates_views_value_as,
+    )
+
+    response = {"views": {"total": short_url.views.count()}}
+    if referers:
+        response["views"]["by_referers"] = referers
+    if dates:
+        response["views"]["by_dates"] = dates
+
+    return api_success(response)
