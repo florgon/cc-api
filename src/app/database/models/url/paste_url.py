@@ -2,8 +2,6 @@
     URL Database model.
     Provides PasteUrl database model.
 """
-from datetime import datetime, timedelta
-
 from app.database import db
 from app.database.mixins import CommonMixin, TimestampMixin, UrlMixin
 

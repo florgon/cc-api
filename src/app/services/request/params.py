@@ -1,7 +1,7 @@
 """
     Services for working with request params (GET, POST) from flask `request` object.
 """
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from flask import request
 import pydantic
@@ -25,7 +25,7 @@ def get_post_param(name: str, default: str = "", type_: type | None = T) -> T:
     if type_ == bool:
         param = pydantic.parse_obj_as(bool, param)
     if type_ == int:
-        # Int conversion can be change
+        # Int conversion can be changed
         param = pydantic.parse_obj_as(int, param)
 
     return param

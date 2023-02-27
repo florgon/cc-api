@@ -4,7 +4,6 @@
 from io import BytesIO
 
 from flask import Blueprint, Response, request, redirect, url_for
-import pydantic
 import pyqrcode
 
 from app.serializers.url import serialize_url, serialize_urls

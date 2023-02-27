@@ -2,7 +2,6 @@
     URL shortener views for text pastes urls.
 """
 from flask import Blueprint, request, Response
-import pydantic
 
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.services.api.response import api_success
