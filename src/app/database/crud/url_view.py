@@ -11,7 +11,7 @@ from app.database.models.referer import Referer
 from app.database import crud
 
 
-def create(
+def create( # pylint: disable=too-many-arguments
     db: SQLAlchemy,
     ip: str,
     user_agent: str,
