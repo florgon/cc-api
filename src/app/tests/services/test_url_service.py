@@ -7,7 +7,7 @@ import pytest
 
 from app.services.api.errors import ApiErrorException
 from app.services.url import validate_url, validate_short_url, validate_url_owner
-from app.database.models.url import Url
+from app.database.models.url import RedirectUrl
 
 
 class TestValidateUrl:
@@ -83,7 +83,7 @@ class TestValidateShortUrl:
         """
         Tests that raises error when there is expired url.
         """
-        url = Url(
+        url = RedirectUrl(
             redirect="https://florgon.space",
             expiration_date=datetime.utcnow() - timedelta(days=1),
         )
@@ -95,7 +95,7 @@ class TestValidateShortUrl:
         """
         Tests that not raises error when there is valid url.
         """
-        url = Url(
+        url = RedirectUrl(
             redirect="https://florgon.space",
             expiration_date=datetime.utcnow() + timedelta(days=1),
         )
@@ -113,7 +113,7 @@ class TestValidateUrlOwner:
         """
         Tests that function raises error when owner_id is not the same with url owner id.
         """
-        url = Url(
+        url = RedirectUrl(
             redirect="https://florgon.space",
             owner_id=1,
         )
@@ -125,7 +125,7 @@ class TestValidateUrlOwner:
         """
         Tests that function doesn't raises error when owner_ids are same
         """
-        url = Url(
+        url = RedirectUrl(
             redirect="https://florgon.space",
             owner_id=1,
         )

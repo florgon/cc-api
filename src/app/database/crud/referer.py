@@ -4,8 +4,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
 from app.database.models.referer import Referer
-from app.database.models.url import Url
-from app.database.models.url_view import UrlView
 
 
 def get_or_create(db: SQLAlchemy, referer: str) -> Referer:
@@ -24,5 +22,3 @@ def get_or_create(db: SQLAlchemy, referer: str) -> Referer:
         db.session.refresh(referer_object)
 
     return referer_object
-
-

@@ -27,7 +27,7 @@ jobs:
         run: pip install pylint==v3.0.0a3 mypy==v0.902
         working-directory: "src/app/"
       - name: PyLint lint.
-        run: pylint --disable=import-error --disable=line-too-long --disable=too-few-public-methods --disable=fixme --disable=no-name-in-module --disable=invalid-name $(git ls-files '*.py')
+        run: pylint --disable=import-error --disable=line-too-long --disable=too-few-public-methods --disable=fixme --disable=no-name-in-module --disable=invalid-name --disable=duplicate-code $(git ls-files '*.py')
         working-directory: "src/app/"
       - name: All PyLint warning.
         run: pylint $(git ls-files '*.py') || true

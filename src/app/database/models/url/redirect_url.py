@@ -1,0 +1,17 @@
+#!usr/bin/python
+"""
+    URL Database model.
+    Provides RedirectUrl class that contains where to redirect and other stuff.
+"""
+from app.database import db
+from app.database.mixins import CommonMixin, TimestampMixin, UrlMixin
+
+
+class RedirectUrl(db.Model, CommonMixin, TimestampMixin, UrlMixin):
+    """
+    Shortened URL model with redirect to external url.
+    """
+
+    redirect = db.Column(db.String, nullable=False)
+
+    views = db.relationship("UrlView", backref="url", lazy="dynamic", uselist=True)

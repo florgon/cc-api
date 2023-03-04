@@ -26,6 +26,7 @@ def _create_app(for_testing: bool = False) -> Flask:
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
     from app.config import Config, ConfigTesting
+
     if for_testing:
         _app.config.from_object(ConfigTesting)
     else:
@@ -41,6 +42,7 @@ def _create_app(for_testing: bool = False) -> Flask:
 
     from app.views.utils import bp_utils
     from app.views.urls import bp_urls
+    from app.views.pastes import bp_pastes
     from app.exception_handlers import (
         bp_handlers,
     )
@@ -48,6 +50,7 @@ def _create_app(for_testing: bool = False) -> Flask:
     PROXY_PREFIX = _app.config["PROXY_PREFIX"]
     _app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
     _app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
+    _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
     _app.register_blueprint(bp_handlers)
 
     client = Client(

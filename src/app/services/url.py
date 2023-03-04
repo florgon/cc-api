@@ -3,8 +3,8 @@
 """
 import re
 
-from app.database.models.url import Url
 from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.database.mixins import UrlMixin
 
 
 def validate_url(url: str | None) -> None:
@@ -24,10 +24,10 @@ def validate_url(url: str | None) -> None:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is invalid!")
 
 
-def validate_short_url(url: Url | None) -> Url:
+def validate_short_url(url: UrlMixin | None) -> UrlMixin:
     """
     Validates short url object and raises ApiErrorException if it is expired/invalid.
-    :param Url|None url: short url to validate
+    :param UrlMixin|None url: short url to validate
     :raises ApiErrorException: when url is invalid
     """
     if url is None:
@@ -41,10 +41,10 @@ def validate_short_url(url: Url | None) -> Url:
     return url
 
 
-def validate_url_owner(url: Url, owner_id: int | None) -> None:
+def validate_url_owner(url: UrlMixin, owner_id: int | None) -> None:
     """
     Checks that url is owned by user with owner_id
-    :param Url url: short url object
+    :param UrlMixin url: short url object
     :param int owner_id: id of owner
     :raises ApiErrorException: when url is not owned by user
     """
@@ -54,10 +54,10 @@ def validate_url_owner(url: Url, owner_id: int | None) -> None:
         )
 
 
-def is_accessed_to_stats(url: Url, owner_id: int | None):
+def is_accessed_to_stats(url: UrlMixin, owner_id: int | None):
     """
     Checks that user with owner_id has access to url stats.
-    :param Url url: url object
+    :param UrlMixin url: url object
     :param int owner_id: user id
     :return: True if has access, else False
     """
