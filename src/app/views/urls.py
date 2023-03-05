@@ -37,7 +37,7 @@ def urls_index():
 
     if request.method == "POST":
         # Create new URL.
-        long_url = get_post_param("long_url")
+        long_url = get_post_param("url")
         validate_url(long_url)
 
         stats_is_public = get_post_param("stats_is_public", "False", bool)
