@@ -6,6 +6,8 @@ from typing import TypeVar
 from flask import request
 import pydantic
 
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+
 T = TypeVar("T")
 
 
@@ -23,9 +25,23 @@ def get_post_param(name: str, default: str = "", type_: type | None = T) -> T:
         param = request.form.get(name, default)
 
     if type_ == bool:
-        param = pydantic.parse_obj_as(bool, param)
+        param = _parse_as_bool(param)
     if type_ == int:
         # Int conversion can be changed
         param = pydantic.parse_obj_as(int, param)
 
     return param
+
+
+def _parse_as_bool(param: str) -> bool:
+    """
+    Parses string param as bool.
+    :param str param: str object to parse
+    :rtype: bool
+    :raises ApiErrorException: if param is invalid to parse.
+    """
+    try:
+        return pydantic.parse_obj_as(bool, param)
+    except pydantic.ValidationError as exc:
+        # TODO: Return param name in error instead of 'param'
+        raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "param is invalid bool!") from exc
