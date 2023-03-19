@@ -27,9 +27,9 @@ class Config:
     )
     PROXY_PREFIX = os.getenv("PROXY_PREFIX", "/v1")
 
-    GATEY_CLIENT_SECRET = os.getenv("GATEY_CLIENT_SECRET")
-    GATEY_SERVER_SECRET = os.getenv("GATEY_SERVER_SECRET")
-    GATEY_PROJECT_ID = int(os.getenv("GATEY_PROJECT_ID", "4"))
+    GATEY_CLIENT_SECRET = os.getenv("GATEY_CLIENT_SECRET", "")
+    GATEY_SERVER_SECRET = os.getenv("GATEY_SERVER_SECRET", "")
+    GATEY_PROJECT_ID = int(os.getenv("GATEY_PROJECT_ID", "0"))
 
     SSO_API_URL = "https://api.florgon.space"
     SSO_API_METHOD = "secure.checkAccessToken"
