@@ -49,8 +49,7 @@ def _create_app(for_testing: bool = False) -> Flask:
     _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
     _app.register_blueprint(bp_handlers)
 
-    gatey_is_configured = _app.config["GATEY_PROJECT_ID"] and (_app.config["GATEY_CLIENT_SECRET"] or _app.config["GATEY_SERVER_SECRET"])
-    if gatey_is_configured:
+    if _app.config["GATEY_IS_ENABLED"]:
         client = Client(
             include_platform_info=True,
             include_runtime_info=True,
