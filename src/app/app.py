@@ -6,11 +6,11 @@
 """
 
 import logging
-from flask import Flask
-from flask_cors import CORS
 
 from gatey_sdk.integrations.flask import GateyFlaskMiddleware
 from gatey_sdk import Client
+from flask_cors import CORS
+from flask import Flask
 
 
 def _create_app(for_testing: bool = False) -> Flask:
@@ -25,7 +25,7 @@ def _create_app(for_testing: bool = False) -> Flask:
 
     CORS(_app, resources={r"/*": {"origins": "*"}})
 
-    from app.config import Config, ConfigTesting
+    from app.config import ConfigTesting, Config
 
     if for_testing:
         _app.config.from_object(ConfigTesting)
@@ -34,18 +34,14 @@ def _create_app(for_testing: bool = False) -> Flask:
 
     _app.json.sort_keys = False
 
-    from app.database.core import (
-        init_with_app,
-    )
+    from app.database.core import init_with_app
 
     init_with_app(_app)
 
     from app.views.utils import bp_utils
     from app.views.urls import bp_urls
     from app.views.pastes import bp_pastes
-    from app.exception_handlers import (
-        bp_handlers,
-    )
+    from app.exception_handlers import bp_handlers
 
     PROXY_PREFIX = _app.config["PROXY_PREFIX"]
     _app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
