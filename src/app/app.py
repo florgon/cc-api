@@ -53,24 +53,6 @@ def _create_app(for_testing: bool = False) -> Flask:
     _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
     _app.register_blueprint(bp_handlers)
 
-    client = Client(
-        include_platform_info=True,
-        include_runtime_info=True,
-        include_sdk_info=True,
-        handle_global_exceptions=True,
-        exceptions_capture_code_context=True,
-        client_secret=_app.config["GATEY_CLIENT_SECRET"],
-        server_secret=_app.config["GATEY_SERVER_SECRET"],
-        project_id=_app.config["GATEY_PROJECT_ID"],
-    )
-    _app.wsgi_app = GateyFlaskMiddleware(
-        _app.wsgi_app,
-        client=client,
-        capture_requests_info=False,
-        client_getter=None,
-        capture_exception_options=None,
-    )
-
     return _app
 
 
