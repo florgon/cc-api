@@ -33,6 +33,7 @@ def _create_app(for_testing: bool = False) -> Flask:
         _app.config.from_object(Config)
 
     _app.json.sort_keys = False
+    _app.url_map.strict_slashes = False
 
     from app.database.core import init_with_app
 
@@ -48,6 +49,25 @@ def _create_app(for_testing: bool = False) -> Flask:
     _app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
     _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
     _app.register_blueprint(bp_handlers)
+
+    if not _app.config["GATEY_IS_ENABLED"]:
+        client = Client(
+            include_platform_info=True,
+            include_runtime_info=True,
+            include_sdk_info=True,
+            handle_global_exceptions=True,
+            exceptions_capture_code_context=True,
+            client_secret=_app.config["GATEY_CLIENT_SECRET"],
+            server_secret=_app.config["GATEY_SERVER_SECRET"],
+            project_id=_app.config["GATEY_PROJECT_ID"],
+        )
+        _app.wsgi_app = GateyFlaskMiddleware(
+            _app.wsgi_app,
+            client=client,
+            capture_requests_info=False,
+            client_getter=None,
+            capture_exception_options=None,
+        )
 
     return _app
 
