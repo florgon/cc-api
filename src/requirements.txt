@@ -24,4 +24,4 @@ PyQRCode==1.2.1
 pypng==0.20220715.0
 
 # Integration with Florgon Gatey.
-gatey-sdk==0.0.7 
+gatey-sdk==0.0.8

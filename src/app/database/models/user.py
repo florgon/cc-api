@@ -12,4 +12,5 @@ class User(db.Model, CommonMixin, TimestampMixin):
 
     user_id = db.Column(db.Integer, nullable=False, unique=True)
 
-    urls = db.relationship("Url", backref="user", lazy="dynamic", uselist=True)
+    urls = db.relationship("RedirectUrl", backref="user", lazy="dynamic", uselist=True)
+    pastes = db.relationship("PasteUrl", backref="user", lazy="dynamic", uselist=True)

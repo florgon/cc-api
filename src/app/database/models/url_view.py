@@ -12,7 +12,8 @@ class UrlView(db.Model, CommonMixin, TimestampMixin):
     UrlView model class.
     """
 
-    url_id = db.Column(db.Integer, db.ForeignKey("urls.id"), nullable=False)
+    url_id = db.Column(db.Integer, db.ForeignKey("redirect_urls.id"), nullable=True)
+    paste_id = db.Column(db.Integer, db.ForeignKey("paste_urls.id"), nullable=True)
     ip = db.Column(db.String(15), nullable=False)
     user_agent_id = db.Column(
         db.Integer, db.ForeignKey("user_agents.id"), nullable=False

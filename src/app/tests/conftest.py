@@ -24,6 +24,7 @@ def app():  # pylint: disable=redefined-outer-name
         db.drop_all()
         print("All tables in testing database was successfully dropped!")
 
+
 @pytest.fixture()
 def client(app):  # pylint: disable=redefined-outer-name
     """

@@ -3,6 +3,4 @@
     ORM models.
 """
 
-from . import url
-
-__all__ = ["url"]
+__all__ = []
