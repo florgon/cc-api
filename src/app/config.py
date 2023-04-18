@@ -31,9 +31,8 @@ class Config:
     GATEY_CLIENT_SECRET = os.getenv("GATEY_CLIENT_SECRET", "")
     GATEY_SERVER_SECRET = os.getenv("GATEY_SERVER_SECRET", "")
     GATEY_PROJECT_ID = int(os.getenv("GATEY_PROJECT_ID", "0"))
-    print(GATEY_PROJECT_ID)
 
-    SSO_API_URL = "https://api.florgon.space"
+    SSO_API_URL = "https://api.florgon.com"
     SSO_API_METHOD = "secure.checkAccessToken"
 
 
