@@ -38,7 +38,7 @@ services:
     hostname: cc-api
     restart: always
     env_file:
-      - .server.env
+      - ./.server.env
     volumes:
       - ./:/srv
     ports:
