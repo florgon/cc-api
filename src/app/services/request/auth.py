@@ -4,6 +4,7 @@
     Root handler for authentication decode.
 """
 from typing import Any
+import logging
 from requests import request
 from requests.exceptions import JSONDecodeError
 
@@ -156,6 +157,7 @@ def _check_token_with_sso_server(token: str) -> dict[str, Any]:
 
     config = current_app.config
     url = f"{config['SSO_API_URL']}/{config['SSO_API_METHOD']}?scope={SSO_REQUESTED_SCOPE}"
+    logging.error(url)
     params = {"token": token}
 
     try:

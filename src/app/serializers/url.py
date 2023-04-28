@@ -19,6 +19,7 @@ def serialize_url(
         "redirect_url": url.redirect,
         "hash": url.hash,
         "expires_at": url.expiration_date.timestamp(),
+        "is_expired": url.is_expired(),
         "stats_is_public": url.stats_is_public,
         "is_deleted": url.is_deleted,
         "_links": {
