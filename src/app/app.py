@@ -50,7 +50,7 @@ def _create_app(for_testing: bool = False) -> Flask:
     _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
     _app.register_blueprint(bp_handlers)
 
-    if not _app.config["GATEY_IS_ENABLED"]:
+    if _app.config["GATEY_IS_ENABLED"]:
         client = Client(
             include_platform_info=True,
             include_runtime_info=True,
