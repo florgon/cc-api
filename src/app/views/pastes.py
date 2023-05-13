@@ -45,18 +45,20 @@ def pastes_index():
                 "Paste text must be less than 4096 characters length!",
             )
 
-        stats_is_public = get_post_param("stats_is_public", "False", bool)
-
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
         if is_authorized and auth_data:
             owner_id = auth_data.user_id
         else:
             owner_id = None
 
+        stats_is_public = get_post_param("stats_is_public", "False", bool)
+        burn_after_read = get_post_param("burn_after_read", "False", bool)
+
         url = crud.paste_url.create_url(
             db=db,
             content=text,
             stats_is_public=stats_is_public,
+            burn_after_read=burn_after_read,
             owner_id=owner_id,
         )
 
@@ -107,6 +109,9 @@ def paste_index(url_hash: str):
         referer=referer,
         user_agent=user_agent,
     )
+    if short_url.burn_after_read:
+        crud.paste_url.delete(db, short_url)
+
     return api_success(serialize_paste(short_url, include_stats=include_stats))
 
 

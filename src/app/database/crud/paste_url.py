@@ -12,12 +12,15 @@ def create_url(
     db: SQLAlchemy,
     content: str,
     stats_is_public: bool = False,
+    burn_after_read: bool = False,
     owner_id: int | None = None,
 ) -> PasteUrl:
     """
     Creates new shortened paste url in database.
     :param SQLAlchemy db: database object
     :param str content: paste text content
+    :param bool stats_is_public: makes url stats public to all users
+    :param bool burn_after_read: deletes url after first reading
     :param int | None owner_id: id of local user
     :return: created url object
     :rtype: RedirectUrl
@@ -25,6 +28,7 @@ def create_url(
     url = PasteUrl(
         content=content,
         stats_is_public=stats_is_public,
+        burn_after_read=burn_after_read,
         owner_id=owner_id,
     )
 
