@@ -51,6 +51,15 @@ services:
     networks:
       - cc-api
     build: .
+  cache:
+    image: redis:7-alpine
+    hostname: cc-api
+    restart: unless-stopped
+    command: redis-server
+    volumes:
+      - ../cache:/data
+    networks:
+      - cc-api
 
 # Setup docker network for the internal network.
 networks:
