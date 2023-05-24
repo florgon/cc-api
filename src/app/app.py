@@ -35,9 +35,6 @@ def _create_app(for_testing: bool = False) -> Flask:
     _app.json.sort_keys = False
     _app.url_map.strict_slashes = False
 
-    from app.middlewares.rate_limiter import RateLimiterMiddleware
-    _app.wsgi_app = RateLimiterMiddleware(_app.wsgi_app)
-
     from app.database.core import init_with_app
 
     init_with_app(_app)
@@ -46,12 +43,14 @@ def _create_app(for_testing: bool = False) -> Flask:
     from app.views.urls import bp_urls
     from app.views.pastes import bp_pastes
     from app.exception_handlers import bp_handlers
+    from app.middlewares.rate_limiter import bp_rate_limiter
 
     PROXY_PREFIX = _app.config["PROXY_PREFIX"]
     _app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
     _app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
     _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
     _app.register_blueprint(bp_handlers)
+    _app.register_blueprint(bp_rate_limiter)
 
     if _app.config["GATEY_IS_ENABLED"]:
         client = Client(

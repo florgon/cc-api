@@ -1,7 +1,7 @@
 """
     Functions for working with request/response headers.
 """
-from flask import request
+from flask import Request, request
 
 
 def get_ip() -> str:

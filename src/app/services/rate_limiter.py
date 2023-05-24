@@ -1,7 +1,7 @@
 """
     Provides a function that limits requests count from user.
 """
-from flask import request, current_app
+from flask import current_app, Request, request
 import redis
 
 from app.services.request.headers import get_ip
@@ -14,7 +14,6 @@ def check_rate_limit(
     minutes: int = 0,
     hours: int = 0,
 ) -> None:
-    seconds = seconds + minutes * 60 + hours * 3600
     ip = get_ip()
     key = f"rate_limiter:{ip}:{request.endpoint}"
 
@@ -22,6 +21,7 @@ def check_rate_limit(
     value = r.get(key)
     if not value:
         r.set(key, 1)
+        seconds = seconds + minutes * 60 + hours * 3600
         r.expire(key, seconds)
     else:
         if int(value) + 1 >= requests_limit:
