@@ -15,7 +15,7 @@ def api_error_exception_to_response(e: ApiErrorException):
     """
     Return api error from raised ApiErrorException
     """
-    return api_error(e.api_code, e.message, e.data)
+    return api_error(e.api_code, e.message, e.data, e.headers)
 
 
 # @bp_handlers.app_errorhandler(Exception)

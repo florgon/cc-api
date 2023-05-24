@@ -33,9 +33,10 @@ class ApiErrorException(Exception):
     """
 
     def __init__(
-        self, api_code: ApiErrorCode, message: str = "", data: dict | None = None
+            self, api_code: ApiErrorCode, message: str = "", data: dict | None = None, headers: dict | None = None,
     ):
         super().__init__()
         self.api_code = api_code
         self.message = message
         self.data = data
+        self.headers = headers
