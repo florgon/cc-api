@@ -25,3 +25,6 @@ pypng==0.20220715.0
 
 # Integration with Florgon Gatey.
 gatey-sdk==0.0.10
+
+# Caching && Rate limiter
+redis==4.5.5

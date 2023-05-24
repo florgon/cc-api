@@ -21,6 +21,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DSN")
 
+    REDIS_DSN = os.getenv("REDIS_DSN")
+
     HASHIDS_SALT = os.getenv(
         "HASHIDS_SALT",
         "gij5uy58yurhgirhigujewiohgihgdjh48ty684yu93tui3hithivhfk3kfm4khni3h4ijiojfuhug3n4ggflorgonojfikdjsigsbhduig",
@@ -34,6 +36,7 @@ class Config:
 
     SSO_API_URL = "https://api.florgon.com/v1"
     SSO_API_METHOD = "secure.checkAccessToken"
+
 
 
 class ConfigTesting(Config):

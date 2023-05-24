@@ -6,6 +6,7 @@ from time import time
 from flask import Blueprint
 
 from app.services.api.response import api_success
+from app.services.rate_limiter import check_rate_limit
 
 bp_utils = Blueprint("utils", __name__)
 
@@ -16,3 +17,4 @@ def get_server_time():
     Returns current time at the server, used for debugging.
     """
     return api_success({"server_time": time()})
+
