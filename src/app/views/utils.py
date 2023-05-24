@@ -6,7 +6,6 @@ from time import time
 from flask import Blueprint
 
 from app.services.api.response import api_success
-from app.services.rate_limiter import check_rate_limit
 
 bp_utils = Blueprint("utils", __name__)
 

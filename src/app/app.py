@@ -35,6 +35,9 @@ def _create_app(for_testing: bool = False) -> Flask:
     _app.json.sort_keys = False
     _app.url_map.strict_slashes = False
 
+    from app.middlewares.rate_limiter import RateLimiterMiddleware
+    _app.wsgi_app = RateLimiterMiddleware(_app.wsgi_app)
+
     from app.database.core import init_with_app
 
     init_with_app(_app)
