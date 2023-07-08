@@ -2,8 +2,8 @@
     PasteUrl CRUD urils for the database.
 """
 from hashids import Hashids
-from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
+from flask import current_app
 
 from app.database.models.url import PasteUrl
 
@@ -13,6 +13,7 @@ def create_url(
     content: str,
     stats_is_public: bool = False,
     burn_after_read: bool = False,
+    language: str = "plain",
     owner_id: int | None = None,
 ) -> PasteUrl:
     """
@@ -30,6 +31,7 @@ def create_url(
         stats_is_public=stats_is_public,
         burn_after_read=burn_after_read,
         owner_id=owner_id,
+        language=language,
     )
 
     db.session.add(url)

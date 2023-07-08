@@ -1,24 +1,23 @@
 """
     URL shortener views for text pastes urls.
 """
-from flask import Blueprint, request, Response
+from flask import request, Response, Blueprint
 
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.services.api.response import api_success
-from app.serializers.paste import serialize_paste, serialize_pastes
+from app.services.url import (
+    validate_url_owner,
+    validate_short_url,
+    is_accessed_to_stats,
+)
+from app.services.request.params import get_post_param
+from app.services.request.headers import get_ip
 from app.services.request.auth import (
     try_query_auth_data_from_request,
     query_auth_data_from_request,
 )
-from app.services.request.params import get_post_param
-from app.services.request.headers import get_ip
-from app.services.url import (
-    is_accessed_to_stats,
-    validate_short_url,
-    validate_url_owner,
-)
+from app.services.api.response import api_success
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.serializers.paste import serialize_pastes, serialize_paste
 from app.database import db, crud
-
 
 bp_pastes = Blueprint("pastes", __name__)
 
@@ -45,12 +44,14 @@ def pastes_index():
                 "Paste text must be less than 4096 characters length!",
             )
 
+        language = get_post_param("language", "plain")
+        if len(language) < 1 or len(language) > 10:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste lang must between 1 and 10 characters!",
+            )
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
-        if is_authorized and auth_data:
-            owner_id = auth_data.user_id
-        else:
-            owner_id = None
-
+        owner_id = auth_data.user_id if is_authorized and auth_data else None
         stats_is_public = get_post_param("stats_is_public", "False", bool)
         burn_after_read = get_post_param("burn_after_read", "False", bool)
 
@@ -60,6 +61,7 @@ def pastes_index():
             stats_is_public=stats_is_public,
             burn_after_read=burn_after_read,
             owner_id=owner_id,
+            language=language,
         )
 
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
