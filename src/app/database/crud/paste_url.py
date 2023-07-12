@@ -78,3 +78,16 @@ def delete(db: SQLAlchemy, url: PasteUrl) -> None:
     """
     url.is_deleted = True
     db.session.commit()
+
+
+def update(db: SQLAlchemy, url: PasteUrl, text: str) -> PasteUrl:
+    """
+    Updates paste url (text).
+    :param SQLAlchemy db: database object
+    :param PasteUrl url: paste object
+    :param str text: new paste text
+    """
+    url.content = text
+    db.session.commit()
+    db.session.refresh(url)
+    return url
