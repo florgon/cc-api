@@ -92,9 +92,22 @@ def paste_index(url_hash: str):
         return Response(status=204)
 
     if request.method == "PATCH":
-        raise ApiErrorException(
-            ApiErrorCode.API_NOT_IMPLEMENTED, "Patching pastes is not implemented yet!"
+        text = get_post_param("text")
+        if len(text) < 10:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste text must be at least 10 characters length!",
+            )
+        if len(text) > 4096:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste text must be less than 4096 characters length!",
+            )
+        validate_url_owner(
+            url=short_url, owner_id=auth_data.user_id if auth_data else None
         )
+        crud.paste_url.update(db=db, url=short_url, text=text)
+        return api_success(serialize_paste(short_url, include_stats=True))
 
     include_stats = is_accessed_to_stats(
         url=short_url, owner_id=auth_data.user_id if auth_data else None
