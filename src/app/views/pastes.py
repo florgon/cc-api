@@ -1,23 +1,24 @@
 """
     URL shortener views for text pastes urls.
 """
-from flask import request, Response, Blueprint
+from flask import Blueprint, request, Response
 
-from app.services.url import (
-    validate_url_owner,
-    validate_short_url,
-    is_accessed_to_stats,
-)
-from app.services.request.params import get_post_param
-from app.services.request.headers import get_ip
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api.response import api_success
+from app.serializers.paste import serialize_paste, serialize_pastes
 from app.services.request.auth import (
     try_query_auth_data_from_request,
     query_auth_data_from_request,
 )
-from app.services.api.response import api_success
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.serializers.paste import serialize_pastes, serialize_paste
+from app.services.request.params import get_post_param
+from app.services.request.headers import get_ip
+from app.services.url import (
+    is_accessed_to_stats,
+    validate_short_url,
+    validate_url_owner,
+)
 from app.database import db, crud
+
 
 bp_pastes = Blueprint("pastes", __name__)
 
@@ -44,14 +45,12 @@ def pastes_index():
                 "Paste text must be less than 4096 characters length!",
             )
 
-        language = get_post_param("language", "plain")
-        if len(language) < 1 or len(language) > 10:
-            raise ApiErrorException(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "Paste lang must between 1 and 10 characters!",
-            )
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
-        owner_id = auth_data.user_id if is_authorized and auth_data else None
+        if is_authorized and auth_data:
+            owner_id = auth_data.user_id
+        else:
+            owner_id = None
+
         stats_is_public = get_post_param("stats_is_public", "False", bool)
         burn_after_read = get_post_param("burn_after_read", "False", bool)
 
@@ -61,7 +60,6 @@ def pastes_index():
             stats_is_public=stats_is_public,
             burn_after_read=burn_after_read,
             owner_id=owner_id,
-            language=language,
         )
 
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
@@ -81,10 +79,12 @@ def paste_index(url_hash: str):
         DELETE: Deletes paste
         PATCH: Updates paste
     """
-    short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
     _, auth_data = try_query_auth_data_from_request(db=db)
 
     if request.method == "DELETE":
+        short_url = validate_short_url(
+            crud.paste_url.get_by_hash(url_hash=url_hash), allow_expired=True
+        )
         validate_url_owner(
             url=short_url, owner_id=auth_data.user_id if auth_data else None
         )
@@ -92,10 +92,25 @@ def paste_index(url_hash: str):
         return Response(status=204)
 
     if request.method == "PATCH":
-        raise ApiErrorException(
-            ApiErrorCode.API_NOT_IMPLEMENTED, "Patching pastes is not implemented yet!"
+        short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
+        text = get_post_param("text")
+        if len(text) < 10:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste text must be at least 10 characters length!",
+            )
+        if len(text) > 4096:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste text must be less than 4096 characters length!",
+            )
+        validate_url_owner(
+            url=short_url, owner_id=auth_data.user_id if auth_data else None
         )
+        crud.paste_url.update(db=db, url=short_url, text=text)
+        return api_success(serialize_paste(short_url, include_stats=True))
 
+    short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
     include_stats = is_accessed_to_stats(
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
