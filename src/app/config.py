@@ -33,7 +33,7 @@ class Config:
     GATEY_PROJECT_ID = int(os.getenv("GATEY_PROJECT_ID", "0"))
 
     SSO_API_URL = "https://api.florgon.com/v1"
-    SSO_API_METHOD = "secure.checkAccessToken"
+    SSO_API_METHOD = "tokens/check"
 
 
 class ConfigTesting(Config):

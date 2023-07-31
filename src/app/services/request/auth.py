@@ -156,9 +156,9 @@ def _check_token_with_sso_server(token: str) -> dict[str, Any]:
     """
 
     config = current_app.config
-    url = f"{config['SSO_API_URL']}/{config['SSO_API_METHOD']}?scope={SSO_REQUESTED_SCOPE}"
+    url = f"{config['SSO_API_URL']}/{config['SSO_API_METHOD']}"
     logging.error(url)
-    params = {"token": token}
+    params = {"access_token": token, "required_scope": SSO_REQUESTED_SCOPE}
 
     try:
         response = request("GET", url, params=params).json()
