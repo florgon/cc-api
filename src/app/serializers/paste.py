@@ -18,6 +18,7 @@ def serialize_paste(
         "id": url.id,
         "hash": url.hash,
         "text": url.content,
+        "language": url.language,
         "expires_at": url.expiration_date.timestamp(),
         "is_expired": url.is_expired(),
         "stats_is_public": url.stats_is_public,
