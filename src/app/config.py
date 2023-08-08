@@ -35,6 +35,11 @@ class Config:
     SSO_API_URL = "https://api.florgon.com/v1"
     SSO_API_METHOD = "tokens/check"
 
+    # If you are deploying API on other domain, you should change it
+    API_HOSTNAME = os.getenv("API_HOSTNAME", "api-cc.florgon.com")
+    # May be http, https
+    API_SCHEME = os.getenv("API_SCHEME", "https")
+
 
 class ConfigTesting(Config):
     """
