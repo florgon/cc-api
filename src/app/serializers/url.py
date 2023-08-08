@@ -3,7 +3,7 @@
 """
 from typing import Any
 
-from flask import url_for
+from flask import url_for, request
 
 from app.database.models.url import RedirectUrl
 
@@ -31,6 +31,7 @@ def serialize_url(
                     _scheme="https",
                 )
             },
+            "host": request.headers.get("Host"),
         },
     }
 
