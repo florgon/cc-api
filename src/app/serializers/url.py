@@ -3,7 +3,7 @@
 """
 from typing import Any
 
-from flask import url_for, request
+from flask import url_for, current_app
 
 from app.database.models.url import RedirectUrl
 
@@ -14,6 +14,11 @@ def serialize_url(
     """
     Serializes url object to dict for the response.
     """
+    API_SCHEME = current_app.config["API_SCHEME"]
+    API_HOSTNAME = current_app.config["API_HOSTNAME"]
+    QR_PATH = url_for("urls.generate_qr_code_for_url", url_hash=url.hash)
+    STATS_PATH = url_for("urls.short_url_stats", url_hash=url.hash)
+
     serialized_url = {
         "id": url.id,
         "redirect_url": url.redirect,
@@ -24,25 +29,14 @@ def serialize_url(
         "is_deleted": url.is_deleted,
         "_links": {
             "qr": {
-                "href": url_for(
-                    "urls.generate_qr_code_for_url",
-                    url_hash=url.hash,
-                    _external=True,
-                    _scheme="https",
-                )
+                "href": f"{API_SCHEME}://{API_HOSTNAME}{QR_PATH}",
             },
-            "host": request.headers.get("Host"),
         },
     }
 
     if include_stats:
         serialized_url["_links"]["stats"] = {
-            "href": url_for(
-                "urls.short_url_stats",
-                url_hash=url.hash,
-                _external=True,
-                _scheme="https",
-            )
+            "href": f"{API_SCHEME}://{API_HOSTNAME}{STATS_PATH}"
         }
 
     if in_list:
