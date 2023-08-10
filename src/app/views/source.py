@@ -24,8 +24,11 @@ bp_source = Blueprint("source", __name__)
 
 @bp_source.route("/", methods=["GET"])
 def source_index():
+    """
+    Returns info about license and gives link to code and repository.
+    """
     return api_success({
-        "license": "AGPLv3+",
+        "license": "AGPLv3-or-later",
         "repository": "https://github.com/florgon/cc-api",
         "download": "https://github.com/florgon/cc-api/archive/refs/heads/main.zip",
     })
