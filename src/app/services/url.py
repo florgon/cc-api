@@ -38,7 +38,7 @@ def validate_url(url: str | None) -> None:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is invalid!")
 
 
-def validate_short_url(url: UrlMixin | None) -> UrlMixin:
+def validate_short_url(url: UrlMixin | None, allow_expired: bool = False) -> UrlMixin:
     """
     Validates short url object and raises ApiErrorException if it is expired/invalid.
     :param UrlMixin|None url: short url to validate
@@ -49,7 +49,7 @@ def validate_short_url(url: UrlMixin | None) -> UrlMixin:
             ApiErrorCode.API_ITEM_NOT_FOUND, "url hash is invalid/not specified"
         )
 
-    if url.is_expired():
+    if not allow_expired and url.is_expired():
         raise ApiErrorException(ApiErrorCode.API_FORBIDDEN, "url is expired!")
 
     return url
