@@ -43,11 +43,13 @@ def _create_app(for_testing: bool = False) -> Flask:
     from app.views.urls import bp_urls
     from app.views.pastes import bp_pastes
     from app.exception_handlers import bp_handlers
+    from app.views.source import bp_source
 
     PROXY_PREFIX = _app.config["PROXY_PREFIX"]
     _app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
     _app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
     _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
+    _app.register_blueprint(bp_source, url_prefix=f"{PROXY_PREFIX}/source")
     _app.register_blueprint(bp_handlers)
 
     if _app.config["GATEY_IS_ENABLED"]:
