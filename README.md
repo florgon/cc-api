@@ -15,50 +15,84 @@ You can install *Florgon CC CLI* (Command line interface) [here](https://github.
 
 *Florgon CC web* interface is hosted [here](https://cc.florgon.com/). I **don't** recommend use it, because it is in alpha stage and it is nonfree service. Many features may not work.
 
-### Documentation.
+## Features
 
-TBD: Document.
+**Url shortener**
 
-#### How to run.
+Create unlimited short urls anonymously or logged in. Every short url will be expired after 2 weeks. 
 
+If you are logged in via Florgon SSO, you can **delete** your url or check **statistics** about url views. You can also make stats public.
+
+**Paste manager**
+
+Create unlimited text pastes anonymously or logged in. Every paste also will be expired after 2 weeks. You can also specify programming language of paste and **syntax highlighting** will be work in all clients.
+
+You can delete paste or check stats as well as short urls.
+
+## Run && deploy
+
+Clone this repository, then:
+```bash
+cd cc-api/src
+docker-compose up --build
 ```
-cd src && docker-compose up
-```
-
-#### How to apply migrations.
-
 When you do first start you should apply migrations to the DBMS.
-
-```
-cd src
-docker-compose up -d
-docker exec -it florgon-api-cc-server-1 /bin/sh
-export FLASK_APP=app/app.py:app
+```bash
+docker-compose exec server sh
+export FLASK_APP=app/app.py
 flask db upgrade
 ```
 
-#### How to configure.
+### Configuration
 
-Please edit `src/.server.env`, all configuration are fetched on startup to `src/app/config.py`
+Please edit `src/.server.env`, all configuration are fetched on startup to `src/app/config.py`.
 
-#### Development.
+DB config are stored in `src/.database.env`.
 
-To run tests (`pytest`) against running instance.
+Docker settings is `src/.env`.
 
-```
-docker exec -it florgon-api-cc-server-1 /bin/sh
-pytest .
-```
+### Deployment
 
-To do formatting before push.
+You should configure nginx server to run this api in production. Gunicorn are already configured in Dockerfile.
 
-```
-black .
-```
+## Documentation
 
-There is CI that is using `mypy` with `pylint`
+Documentation will be soon...
 
-# Tested on...
+## Technologies
+
+Written mostly in Python 3.10+
+
+Main framework: flask
+
+DBMS: PostgreSQL
+
+API also uses Redis as broker.
+
+API, DB and Redis runs in docker containers, using docker compose.
+
+Other dependencies are stored in `requirements.txt`.
+
+## Tested on...
 
 Docker engine: v20._ \
-Docker compose: v2._
+Docker compose: v2._ \
+Python: 3.10, 3.11
+
+## License
+
+SPDX-License-Identifier: AGPLv3-or-later
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+## Contribution
+
+Feel free to contribute to this program. You can send issue, submit a pull request. You can also email me (`stepanzubkov@florgon.com`).
+
+## Support
+
+If you are from Russia, you can support me by sending some money [using this link](https://www.tinkoff.ru/rm/zubkov.stepan27/FGvQQ98452).
+
+
