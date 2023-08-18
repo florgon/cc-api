@@ -45,6 +45,18 @@ def pastes_index():
                 "Paste text must be less than 4096 characters length!",
             )
 
+        language = get_post_param("language")
+        if not language:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be at least 1 character length!"
+            )
+        if len(language) > 20:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be less then 20 character length!"
+            )
+
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
         if is_authorized and auth_data:
             owner_id = auth_data.user_id
@@ -60,6 +72,7 @@ def pastes_index():
             stats_is_public=stats_is_public,
             burn_after_read=burn_after_read,
             owner_id=owner_id,
+            language=language,
         )
 
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
