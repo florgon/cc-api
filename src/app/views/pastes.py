@@ -117,10 +117,22 @@ def paste_index(url_hash: str):
                 ApiErrorCode.API_INVALID_REQUEST,
                 "Paste text must be less than 4096 characters length!",
             )
+        language = get_post_param("language")
+        if not language:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be at least 1 character length!"
+            )
+        if len(language) > 20:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be less then 20 character length!"
+            )
+
         validate_url_owner(
             url=short_url, owner_id=auth_data.user_id if auth_data else None
         )
-        crud.paste_url.update(db=db, url=short_url, text=text)
+        crud.paste_url.update(db=db, url=short_url, text=text, language=language)
         return api_success(serialize_paste(short_url, include_stats=True))
 
     short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))

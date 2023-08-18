@@ -82,7 +82,7 @@ def delete(db: SQLAlchemy, url: PasteUrl) -> None:
     db.session.commit()
 
 
-def update(db: SQLAlchemy, url: PasteUrl, text: str) -> PasteUrl:
+def update(db: SQLAlchemy, url: PasteUrl, text: str, language: str) -> PasteUrl:
     """
     Updates paste url (text).
     :param SQLAlchemy db: database object
@@ -90,6 +90,7 @@ def update(db: SQLAlchemy, url: PasteUrl, text: str) -> PasteUrl:
     :param str text: new paste text
     """
     url.content = text
+    url.language = language
     db.session.commit()
     db.session.refresh(url)
     return url
