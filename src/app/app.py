@@ -3,6 +3,20 @@
 """
     URL shortener API Flask application.
     Used to be run with Gunicorn or externally with Docker.
+    Copyright (C) 2022-2023 Stepan Zubkov <stepanzubkov@florgon.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import logging
@@ -43,11 +57,13 @@ def _create_app(for_testing: bool = False) -> Flask:
     from app.views.urls import bp_urls
     from app.views.pastes import bp_pastes
     from app.exception_handlers import bp_handlers
+    from app.views.source import bp_source
 
     PROXY_PREFIX = _app.config["PROXY_PREFIX"]
     _app.register_blueprint(bp_utils, url_prefix=f"{PROXY_PREFIX}/utils")
     _app.register_blueprint(bp_urls, url_prefix=f"{PROXY_PREFIX}/urls")
     _app.register_blueprint(bp_pastes, url_prefix=f"{PROXY_PREFIX}/pastes")
+    _app.register_blueprint(bp_source, url_prefix=f"{PROXY_PREFIX}/source")
     _app.register_blueprint(bp_handlers)
 
     if _app.config["GATEY_IS_ENABLED"]:

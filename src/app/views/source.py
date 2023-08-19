@@ -1,5 +1,5 @@
 """
-    CRUD ORM (database) utils for the app.
+    Blueprint that provides info about API source code.
     Copyright (C) 2022-2023 Stepan Zubkov <stepanzubkov@florgon.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,20 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from . import redirect_url, url_view, user_agent, referer, user, paste_url
 
-__all__ = ["redirect_url", "url_view", "user_agent", "referer", "user", "paste_url"]
+from flask import Blueprint
+
+from app.services.api.response import api_success
+
+bp_source = Blueprint("source", __name__)
+
+@bp_source.route("/", methods=["GET"])
+def source_index():
+    """
+    Returns info about license and gives link to code and repository.
+    """
+    return api_success({
+        "license": "AGPLv3-or-later",
+        "repository": "https://github.com/florgon/cc-api",
+        "download": "https://github.com/florgon/cc-api/archive/refs/heads/main.zip",
+    })
