@@ -59,6 +59,20 @@ def pastes_index():
                 "Paste text must be less than 4096 characters length!",
             )
 
+        language = get_post_param("language", None)
+        if language is None:
+            pass
+        elif not language:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be at least 1 character length!"
+            )
+        elif len(language) > 20:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be less then 20 character length!"
+            )
+
         is_authorized, auth_data = try_query_auth_data_from_request(db=db)
         if is_authorized and auth_data:
             owner_id = auth_data.user_id
@@ -74,6 +88,7 @@ def pastes_index():
             stats_is_public=stats_is_public,
             burn_after_read=burn_after_read,
             owner_id=owner_id,
+            language=language if language else "plain",
         )
 
         include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
@@ -107,21 +122,41 @@ def paste_index(url_hash: str):
 
     if request.method == "PATCH":
         short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
-        text = get_post_param("text")
-        if len(text) < 10:
+        text = get_post_param("text", None)
+        if text is None:
+            pass
+        elif len(text) < 10:
             raise ApiErrorException(
                 ApiErrorCode.API_INVALID_REQUEST,
                 "Paste text must be at least 10 characters length!",
             )
-        if len(text) > 4096:
+        elif len(text) > 4096:
             raise ApiErrorException(
                 ApiErrorCode.API_INVALID_REQUEST,
                 "Paste text must be less than 4096 characters length!",
             )
+        language = get_post_param("language", None)
+        if language is None:
+            pass
+        elif len(language) == 0:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be at least 1 character length!"
+            )
+        elif len(language) > 20:
+            raise ApiErrorException(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Paste language must be less then 20 character length!"
+            )
+
         validate_url_owner(
             url=short_url, owner_id=auth_data.user_id if auth_data else None
         )
-        crud.paste_url.update(db=db, url=short_url, text=text)
+        to_update = {k: v for k, v in {
+            "text": text,
+            "language": language,
+        }.items() if v is not None}
+        crud.paste_url.update(db=db, url=short_url, **to_update)
         return api_success(serialize_paste(short_url, include_stats=True))
 
     short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
