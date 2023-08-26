@@ -13,7 +13,7 @@ def create_url(
     content: str,
     stats_is_public: bool = False,
     burn_after_read: bool = False,
-    language: str = "plain",
+    language: str | None = "plain",
     owner_id: int | None = None,
 ) -> PasteUrl:
     """
@@ -82,15 +82,17 @@ def delete(db: SQLAlchemy, url: PasteUrl) -> None:
     db.session.commit()
 
 
-def update(db: SQLAlchemy, url: PasteUrl, text: str, language: str) -> PasteUrl:
+def update(db: SQLAlchemy, url: PasteUrl, text: str | None = None, language: str | None = None) -> PasteUrl:
     """
     Updates paste url (text).
     :param SQLAlchemy db: database object
     :param PasteUrl url: paste object
     :param str text: new paste text
     """
-    url.content = text
-    url.language = language
+    if text:
+        url.content = text
+    if language:
+        url.language = language
     db.session.commit()
     db.session.refresh(url)
     return url
