@@ -35,6 +35,7 @@ from app.services.url import (
 from app.services.request.auth import (
     query_auth_data_from_request,
     try_query_auth_data_from_request,
+    auth_required,
 )
 
 bp_urls = Blueprint("urls", __name__)
