@@ -18,6 +18,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from typing import Any
+import functools
 import logging
 from requests import request
 from requests.exceptions import JSONDecodeError
@@ -29,10 +30,24 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.request.auth_data import AuthData
 from app.services.permissions import Permission, parse_permissions_from_scope
 from app.database.models.user import User
-from app.database import crud
+from app.database import crud, db
 
 # Scope that will be requested from SSO.
 SSO_REQUESTED_SCOPE = "cc"
+
+
+def auth_required(view):
+    """
+    Decorator requires that user is authenticated via Florgon SSO.
+    Decorates API view.
+    Passes auth_data as first argument of view function, then other arguments.
+    :param view: API view function.
+    """
+    @functools.wraps(view)
+    def wrap(*args, **kwargs):
+        auth_data = query_auth_data_from_request(db=db)
+        return view(auth_data, *args, **kwargs)
+    return wrap
 
 
 def query_auth_data_from_token(

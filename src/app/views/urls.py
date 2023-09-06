@@ -70,12 +70,12 @@ def create_url():
 
 
 
+@auth_required
 @bp_urls.route("/", methods=["GET"])
 def urls_list():
     """
     Method returns all user's urls. Auth required.
     """
-    auth_data = query_auth_data_from_request(db=db)
     urls = crud.redirect_url.get_by_owner_id(owner_id=auth_data.user_id)
     return api_success(serialize_urls(urls, include_stats=False))
 
