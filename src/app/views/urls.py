@@ -37,6 +37,7 @@ from app.services.request.auth import (
     try_query_auth_data_from_request,
     auth_required,
 )
+from app.services.request.auth_data import AuthData
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -81,34 +82,38 @@ def urls_list():
     return api_success(serialize_urls(urls, include_stats=False))
 
 
-@bp_urls.route("/<url_hash>/", methods=["GET", "DELETE", "PATCH"])
-def short_url_index(url_hash: str):
+@bp_urls.route("/<url_hash>/", methods=["GET"])
+def get_info_about_url(url_hash: str):
     """
-    Short url index resource.
-    Methods:
-        GET: Returns info about short url
-        DELETE: Deletes url
-        PATCH: Updates url
+    Method returns info about short url. Also it returns links to stats, if user is owner of this url.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
     _, auth_data = try_query_auth_data_from_request(db=db)
-
-    if request.method == "DELETE":
-        validate_url_owner(
-            url=short_url, owner_id=auth_data.user_id if auth_data else None
-        )
-        crud.redirect_url.delete(db=db, url=short_url)
-        return Response(status=204)
-
-    if request.method == "PATCH":
-        raise ApiErrorException(
-            ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
-        )
-
     include_stats = is_accessed_to_stats(
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
     return api_success(serialize_url(short_url, include_stats=include_stats))
+
+
+@auth_required
+@bp_urls.route("/<url_hash>/", methods=["DELETE"])
+def delete_short_url(auth_data: AuthData, url_hash: str):
+    """
+    Method deletes short url. Auth and ownership required.
+    """
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
+    validate_url_owner(
+        url=short_url, owner_id=auth_data.user_id
+    )
+    crud.redirect_url.delete(db=db, url=short_url)
+    return Response(status=204)
+
+
+@bp_urls.route("/<url_hash>/", methods=["PATCH"])
+def short_url_index(url_hash: str):
+    raise ApiErrorException(
+        ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
+    )
 
 
 @bp_urls.route("/<url_hash>/qr", methods=["GET"])
