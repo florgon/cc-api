@@ -39,39 +39,42 @@ from app.services.request.auth import (
 
 bp_urls = Blueprint("urls", __name__)
 
-
-@bp_urls.route("/", methods=["POST", "GET"])
-def urls_index():
+@bp_urls.route("/", methods=["POST"])
+def create_url():
     """
-    URLs index,
-    Methods:
-        POST - Creates short url and returns created url object.
-        GET - List all urls.
+    Method creates new short url.
+    POST params:
+     - str `url` -- long url.
+     - bool `stats_is_public` (auth required) -- Make stats awailable for all.
     """
+    long_url = get_post_param("url")
+    validate_url(long_url)
 
-    if request.method == "POST":
-        # Create new URL.
-        long_url = get_post_param("url")
-        validate_url(long_url)
+    stats_is_public = get_post_param("stats_is_public", "False", bool)
 
-        stats_is_public = get_post_param("stats_is_public", "False", bool)
+    is_authorized, auth_data = try_query_auth_data_from_request(db=db)
+    if is_authorized and auth_data:
+        owner_id = auth_data.user_id
+    else:
+        owner_id = None
 
-        is_authorized, auth_data = try_query_auth_data_from_request(db=db)
-        if is_authorized and auth_data:
-            owner_id = auth_data.user_id
-        else:
-            owner_id = None
+    url = crud.redirect_url.create_url(
+        db=db,
+        redirect_url=long_url,
+        stats_is_public=stats_is_public,
+        owner_id=owner_id,
+    )
 
-        url = crud.redirect_url.create_url(
-            db=db,
-            redirect_url=long_url,
-            stats_is_public=stats_is_public,
-            owner_id=owner_id,
-        )
+    include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
+    return api_success(serialize_url(url, include_stats=include_stats))
 
-        include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
-        return api_success(serialize_url(url, include_stats=include_stats))
 
+
+@bp_urls.route("/", methods=["GET"])
+def urls_list():
+    """
+    Method returns all user's urls. Auth required.
+    """
     auth_data = query_auth_data_from_request(db=db)
     urls = crud.redirect_url.get_by_owner_id(owner_id=auth_data.user_id)
     return api_success(serialize_urls(urls, include_stats=False))
