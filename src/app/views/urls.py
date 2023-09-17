@@ -124,6 +124,10 @@ def short_url_index(url_hash: str):
 def generate_qr_code_for_url(url_hash: str):
     """
     Generates QR code image for hash url.
+    GET params:
+     - str `result_type` - Type of result. May be `svg`, `png` or `txt`. Defaults to `svg`.
+     - int `scale` - Image scaling. May be integer from 1 to 8. Defaults to 3.
+     - int `quiet_zone` - White border around qr-code. May be from 0 to 25. Defaults to 4.
 
     TODO: Fix caching to not generate new QR code every time.
     TODO: Custom logo for QR.
