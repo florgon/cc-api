@@ -25,6 +25,12 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.request.params import get_post_param
 from app.services.request.headers import get_ip
+from app.services.qr import (
+    validate_qr_result_type,
+    validate_qr_code_scale,
+    validate_qr_code_quiet_zone,
+    generate_qr_code,
+)
 from app.database import crud, db
 from app.services.url import (
     is_accessed_to_stats,
@@ -40,6 +46,7 @@ from app.services.request.auth import (
 from app.services.request.auth_data import AuthData
 
 bp_urls = Blueprint("urls", __name__)
+
 
 @bp_urls.route("/", methods=["POST"])
 def create_url():
@@ -69,7 +76,6 @@ def create_url():
 
     include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
     return api_success(serialize_url(url, include_stats=include_stats))
-
 
 
 @auth_required
@@ -102,9 +108,7 @@ def delete_short_url(auth_data: AuthData, url_hash: str):
     Method deletes short url. Auth and ownership required.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-    validate_url_owner(
-        url=short_url, owner_id=auth_data.user_id
-    )
+    validate_url_owner(url=short_url, owner_id=auth_data.user_id)
     crud.redirect_url.delete(db=db, url=short_url)
     return Response(status=204)
 
@@ -124,60 +128,30 @@ def generate_qr_code_for_url(url_hash: str):
     TODO: Fix caching to not generate new QR code every time.
     TODO: Custom logo for QR.
     """
-    response_as = request.args.get("as", "svg")
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-    if response_as not in ("svg", "txt", "png"):
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Expected `as` to be `svg`, `png` or `txt`!",
-        )
 
-    # Create QR Code from redirect to.
-    qr_code = pyqrcode.create(
-        url_for(
+    result_type = request.args.get("result_type", "svg")
+    validate_qr_result_type(result_type)
+
+    scale = request.args.get("scale", "3")
+    validate_qr_code_scale(scale)
+    scale = int(scale)
+
+    quiet_zone = request.args.get("quiet_zone", "4")
+    validate_qr_code_quiet_zone(quiet_zone)
+    quiet_zone = int(quiet_zone)
+
+    return generate_qr_code(
+        text=url_for(
             "urls.open_short_url",
             url_hash=short_url.hash,
             _external=True,
             _scheme="https",
-        )
+        ),
+        result_type=result_type,
+        scale=scale,
+        quiet_zone=quiet_zone,
     )
-
-    # Export QR to the stream or pass directly.
-    scale = request.args.get("scale", "3")
-    if not scale.isdigit() or scale == "0" or int(scale) > 8:
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`scale` argument must be an integer number in range from 1 to 8!",
-        )
-    scale = int(scale)
-
-    quiet_zone = request.args.get("quiet_zone", "4")
-    if not quiet_zone.isdigit() or int(quiet_zone) > 25:
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`quiet_zone` argument must be an integer number in range from 0 to 25!",
-        )
-    quiet_zone = int(quiet_zone)
-
-    qr_code_stream = BytesIO() if response_as != "txt" else None
-    if response_as == "svg":
-        qr_code.svg(qr_code_stream, scale=scale, quiet_zone=quiet_zone)
-    elif response_as == "png":
-        qr_code.png(qr_code_stream, scale=scale, quiet_zone=quiet_zone)
-
-    if qr_code_stream is not None:
-        # Headers to not cache image.
-        headers_no_cache = {
-            "Content-Type": "image/svg+xml" if response_as == "svg" else "image/png",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
-            "Expires": "0",
-            "Content-Length": str(qr_code_stream.getbuffer().nbytes),
-        }
-        return qr_code_stream.getvalue(), 200, headers_no_cache
-
-    # Plain text.
-    return qr_code.text()
 
 
 @bp_urls.route("/<url_hash>/open", methods=["GET"])

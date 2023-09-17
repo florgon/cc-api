@@ -43,10 +43,12 @@ def auth_required(view):
     Passes auth_data as first argument of view function, then other arguments.
     :param view: API view function.
     """
+
     @functools.wraps(view)
     def wrap(*args, **kwargs):
         auth_data = query_auth_data_from_request(db=db)
         return view(auth_data, *args, **kwargs)
+
     return wrap
 
 

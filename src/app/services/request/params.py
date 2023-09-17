@@ -58,4 +58,6 @@ def _parse_as_bool(param: str) -> bool:
         return pydantic.parse_obj_as(bool, param)
     except pydantic.ValidationError as exc:
         # TODO: Return param name in error instead of 'param'
-        raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "param is invalid bool!") from exc
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST, "param is invalid bool!"
+        ) from exc
