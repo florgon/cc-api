@@ -162,6 +162,7 @@ def generate_qr_code_for_url(url_hash: str):
 def open_short_url(url_hash: str):
     """
     Redirects user to long redirect url.
+    Collects IP address, referer and user agents for statistics.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
 
