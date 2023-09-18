@@ -15,10 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from io import BytesIO
 
 from flask import Blueprint, Response, request, redirect, url_for
-import pyqrcode
 
 from app.serializers.url import serialize_url, serialize_urls
 from app.services.api.errors import ApiErrorCode, ApiErrorException
@@ -44,6 +42,7 @@ from app.services.request.auth import (
     auth_required,
 )
 from app.services.request.auth_data import AuthData
+from app.services.stats import collect_stats_and_add_view
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -165,14 +164,7 @@ def open_short_url(url_hash: str):
     Collects IP address, referer and user agents for statistics.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-
-    remote_addr = get_ip()
-    user_agent = request.user_agent.string
-    referer = request.headers.get("Referer")
-    crud.url_view.create(
-        db=db, url=short_url, ip=remote_addr, user_agent=user_agent, referer=referer
-    )
-
+    collect_stats_and_add_view(db=db, short_url=short_url)
     return redirect(short_url.redirect)
 
 
