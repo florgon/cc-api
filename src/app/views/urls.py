@@ -19,10 +19,10 @@
 from flask import Blueprint, Response, request, redirect, url_for
 
 from app.serializers.url import serialize_url, serialize_urls
+from app.serializers.url_stats import serialize_url_stats
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.request.params import get_post_param
-from app.services.request.headers import get_ip
 from app.services.qr import (
     validate_qr_result_type,
     validate_qr_code_scale,
@@ -42,7 +42,11 @@ from app.services.request.auth import (
     auth_required,
 )
 from app.services.request.auth_data import AuthData
-from app.services.stats import collect_stats_and_add_view
+from app.services.stats import (
+    collect_stats_and_add_view,
+    validate_referer_views_value_as,
+    validate_dates_views_value_as,
+)
 
 bp_urls = Blueprint("urls", __name__)
 
@@ -168,54 +172,24 @@ def open_short_url(url_hash: str):
     return redirect(short_url.redirect)
 
 
-@bp_urls.route("/<url_hash>/stats", methods=["GET", "DELETE"])
+@bp_urls.route("/<url_hash>/stats", methods=["GET"])
 def short_url_stats(url_hash: str):
     """
     Returns stats for short url.
-    Methods:
-        GET: get url statistics
-        DELETE: clear url statistics
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-
-    if request.method == "DELETE":
-        auth_data = query_auth_data_from_request(db=db)
-        validate_url_owner(short_url, owner_id=auth_data.user_id)
-        crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
-        return Response(status=204)
 
     if not short_url.stats_is_public:
         auth_data = query_auth_data_from_request(db=db)
         validate_url_owner(short_url, owner_id=auth_data.user_id)
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
-    if referer_views_value_as not in ("percent", "number"):
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`referer_views_value_as` must be a `percent` or `number`!",
-        )
-    referers = crud.url_view.get_referers(
-        db=db,
-        url_id=short_url.id,
-        value_as=referer_views_value_as,
-    )
+    validate_referer_views_value_as(referer_views_value_as)
 
     dates_views_value_as = request.args.get("dates_views_value_as", "percent")
-    if dates_views_value_as not in ("percent", "number"):
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`dates_views_value_as` must be a `percent` or `number`!",
-        )
-    dates = crud.url_view.get_dates(
-        db=db,
-        url_id=short_url.id,
-        value_as=dates_views_value_as,
+    validate_dates_views_value_as
+
+    response = serialize_url_stats(
+        short_url, referer_views_value_as, dates_views_value_as
     )
-
-    response = {"views": {"total": short_url.views.count()}}
-    if referers:
-        response["views"]["by_referers"] = referers
-    if dates:
-        response["views"]["by_dates"] = dates
-
     return api_success(response)

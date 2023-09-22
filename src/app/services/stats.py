@@ -22,6 +22,7 @@ from flask import request
 from app.services.request.headers import get_ip
 from app.database import crud
 from app.database.models.url import RedirectUrl
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 
 def collect_stats_and_add_view(db: SQLAlchemy, short_url: RedirectUrl) -> None:
@@ -41,3 +42,19 @@ def collect_stats_and_add_view(db: SQLAlchemy, short_url: RedirectUrl) -> None:
         user_agent=user_agent,
         referer=referer,
     )
+
+
+def validate_referer_views_value_as(referer_views_value_as: str) -> None:
+    if referer_views_value_as not in ("percent", "number"):
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`referer_views_value_as` must be a `percent` or `number`!",
+        )
+
+
+def validate_dates_views_value_as(dates_views_value_as: str) -> None:
+    if dates_views_value_as not in ("percent", "number"):
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`dates_views_value_as` must be a `percent` or `number`!",
+        )
