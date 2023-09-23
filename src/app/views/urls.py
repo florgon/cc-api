@@ -31,7 +31,6 @@ from app.services.qr import (
 )
 from app.database import crud, db
 from app.services.url import (
-    is_accessed_to_stats,
     validate_short_url,
     validate_url,
     validate_url_owner,
@@ -46,6 +45,7 @@ from app.services.stats import (
     collect_stats_and_add_view,
     validate_referer_views_value_as,
     validate_dates_views_value_as,
+    is_accessed_to_stats,
 )
 
 bp_urls = Blueprint("urls", __name__)
@@ -179,9 +179,10 @@ def short_url_stats(url_hash: str):
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
 
-    if not short_url.stats_is_public:
-        auth_data = query_auth_data_from_request(db=db)
-        validate_url_owner(short_url, owner_id=auth_data.user_id)
+    is_authorized, auth_data = try_query_auth_data_from_request(db=db)
+    is_accessed_to_stats(
+        short_url, owner_id=auth_data.user_id if is_authorized else None, fatal=True
+    )
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
     validate_referer_views_value_as(referer_views_value_as)

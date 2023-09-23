@@ -22,7 +22,9 @@ from flask import request
 from app.services.request.headers import get_ip
 from app.database import crud
 from app.database.models.url import RedirectUrl
+from app.database.mixins import UrlMixin
 from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.url import validate_url_owner
 
 
 def collect_stats_and_add_view(db: SQLAlchemy, short_url: RedirectUrl) -> None:
@@ -58,3 +60,25 @@ def validate_dates_views_value_as(dates_views_value_as: str) -> None:
             ApiErrorCode.API_INVALID_REQUEST,
             "`dates_views_value_as` must be a `percent` or `number`!",
         )
+
+
+def is_accessed_to_stats(
+    url: UrlMixin, owner_id: int | None, fatal: bool = False
+) -> bool:
+    """
+    Checks that user with owner_id has access to url stats.
+    :param UrlMixin url: url object
+    :param int owner_id: user id
+    :return: True if has access, else False
+    """
+    if url.stats_is_public:
+        return True
+
+    try:
+        validate_url_owner(url=url, owner_id=owner_id)
+    except ApiErrorException as e:
+        if fatal:
+            raise e
+        return False
+
+    return True

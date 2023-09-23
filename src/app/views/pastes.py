@@ -27,10 +27,10 @@ from app.services.request.auth import (
 from app.services.request.params import get_post_param
 from app.services.request.headers import get_ip
 from app.services.url import (
-    is_accessed_to_stats,
     validate_short_url,
     validate_url_owner,
 )
+from app.services.stats import is_accessed_to_stats
 from app.database import db, crud
 
 
