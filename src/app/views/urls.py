@@ -83,7 +83,7 @@ def create_url():
 
 @auth_required
 @bp_urls.route("/", methods=["GET"])
-def urls_list():
+def urls_list(auth_data: AuthData):
     """
     Method returns all user's urls. Auth required.
     """
@@ -117,7 +117,7 @@ def delete_short_url(auth_data: AuthData, url_hash: str):
 
 
 @bp_urls.route("/<url_hash>/", methods=["PATCH"])
-def short_url_index(url_hash: str):
+def patch_short_url(url_hash: str):
     raise ApiErrorException(
         ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
     )
@@ -172,10 +172,28 @@ def open_short_url(url_hash: str):
     return redirect(short_url.redirect)
 
 
+@auth_required
+@bp_urls.route("/<url_hash>/stats", methods=["DELETE"])
+def clear_short_url_stats(auth_data: AuthData, url_hash: str):
+    """
+    Clears url stats. Auth required.
+    If successfully cleared - return 204 response with empty body.
+    """
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
+    validate_url_owner(short_url, owner_id=auth_data.user_id)
+    crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
+    return Response(status=204)
+
+
 @bp_urls.route("/<url_hash>/stats", methods=["GET"])
-def short_url_stats(url_hash: str):
+def get_short_url_stats(url_hash: str):
     """
     Returns stats for short url.
+    GET params:
+     - str `referer_views_value_as` - how to represent referers views.
+        May be `percent`, `number`. Defaults to `percent`.
+     - str `dates_views_value_as` - how to represent dates views.
+        May be `percent`, `number`. Defaults to `percent`.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
 
