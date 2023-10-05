@@ -30,7 +30,7 @@ from app.services.qr import (
     generate_qr_code,
 )
 from app.database import crud, db
-from app.services.url import (
+from app.services.url.url import (
     validate_short_url,
     validate_url,
     validate_url_owner,
@@ -41,11 +41,11 @@ from app.services.request.auth import (
     auth_required,
 )
 from app.services.request.auth_data import AuthData
-from app.services.stats import (
+from app.services.stats import is_accessed_to_stats
+from app.services.url.stats import (
     collect_stats_and_add_view,
     validate_referer_views_value_as,
     validate_dates_views_value_as,
-    is_accessed_to_stats,
 )
 
 bp_urls = Blueprint("urls", __name__)

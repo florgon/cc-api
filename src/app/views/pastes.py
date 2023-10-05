@@ -28,12 +28,12 @@ from app.services.request.auth import (
 from app.services.request.auth_data import AuthData
 from app.services.request.params import get_post_param
 from app.services.request.headers import get_ip
-from app.services.url import (
+from app.services.url.url import (
     validate_short_url,
     validate_url_owner,
 )
 from app.services.stats import is_accessed_to_stats
-from app.services.paste import validate_paste_text, validate_paste_language
+from app.services.paste.paste import validate_paste_text, validate_paste_language
 from app.database import db, crud
 
 
@@ -41,7 +41,7 @@ bp_pastes = Blueprint("pastes", __name__)
 
 @auth_required
 @bp_pastes.route("/", methods=["GET"])
-def git_pastes_list(auth_data: AuthData):
+def get_pastes_list(auth_data: AuthData):
     """
     Returns list of pastes. Auth required.
     """
@@ -81,6 +81,40 @@ def create_paste():
     include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
     return api_success(serialize_paste(url, include_stats=include_stats))
 
+@bp_pastes.route("/<url_hash>/", methods=["GET"])
+def get_paste_info(url_hash: str):
+    """
+    Returns info about paste and links to stats if user is accessed to stats.
+    """
+    _, auth_data = try_query_auth_data_from_request(db=db)
+    short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
+    include_stats = is_accessed_to_stats(
+        url=short_url, owner_id=auth_data.user_id if auth_data else None
+    )
+
+    remote_addr = get_ip()
+    user_agent = request.user_agent.string
+    referer = request.headers.get("Referer")
+
+    crud.url_view.create(
+        db=db,
+        paste=short_url,
+        ip=remote_addr,
+        referer=referer,
+        user_agent=user_agent,
+    )
+    if short_url.burn_after_read:
+        crud.paste_url.delete(db, short_url)
+
+    return api_success(serialize_paste(short_url, include_stats=include_stats))
+
+@bp_pastes.route("/<url_hash>/", methods=["DELETE"])
+def delete_paste(url_hash: str):
+    ...
+
+@bp_pastes.route("/<url_hash>/", methods=["PATCH"])
+def patch_paste(url_hash: str):
+    ...
 
 @bp_pastes.route("/<url_hash>/", methods=["GET", "DELETE", "PATCH"])
 def paste_index(url_hash: str):
