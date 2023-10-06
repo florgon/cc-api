@@ -30,13 +30,12 @@ from app.services.qr import (
     generate_qr_code,
 )
 from app.database import crud, db
-from app.services.url.url import (
+from app.services.url_mixin import (
     validate_short_url,
-    validate_url,
     validate_url_owner,
 )
+from app.services.url.url import validate_url
 from app.services.request.auth import (
-    query_auth_data_from_request,
     try_query_auth_data_from_request,
     auth_required,
 )

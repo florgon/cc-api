@@ -18,7 +18,7 @@
 """
 
 from app.database.mixins import UrlMixin
-from app.services.url.url import validate_url_owner
+from app.services.url_mixin import validate_url_owner
 from app.services.api.errors import ApiErrorException
 
 

@@ -28,7 +28,7 @@ from app.services.request.auth import (
 from app.services.request.auth_data import AuthData
 from app.services.request.params import get_post_param
 from app.services.request.headers import get_ip
-from app.services.url.url import (
+from app.services.url_mixin import (
     validate_short_url,
     validate_url_owner,
 )

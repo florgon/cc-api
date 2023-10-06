@@ -20,7 +20,8 @@ from datetime import datetime, timedelta
 import pytest
 
 from app.services.api.errors import ApiErrorException
-from app.services.url.url import validate_url, validate_short_url, validate_url_owner
+from app.services.url_mixin import validate_short_url, validate_url_owner
+from app.services.url.url import validate_url
 from app.database.models.url import RedirectUrl
 
 
