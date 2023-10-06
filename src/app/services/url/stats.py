@@ -17,12 +17,11 @@
 """
 
 from flask_sqlalchemy import SQLAlchemy
-from flask import request
 
-from app.services.request.headers import get_ip
 from app.database import crud
 from app.database.models.url import RedirectUrl
 from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.stats import get_stats
 
 
 def collect_stats_and_add_view(db: SQLAlchemy, short_url: RedirectUrl) -> None:
@@ -32,15 +31,10 @@ def collect_stats_and_add_view(db: SQLAlchemy, short_url: RedirectUrl) -> None:
     :param RedirectUrl short_url: short url object
     :rtype: None
     """
-    remote_addr = get_ip()
-    user_agent = request.user_agent.string
-    referer = request.headers.get("Referer")
     crud.url_view.create(
         db=db,
         url=short_url,
-        ip=remote_addr,
-        user_agent=user_agent,
-        referer=referer,
+        stats=get_stats(),
     )
 
 

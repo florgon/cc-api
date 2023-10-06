@@ -32,15 +32,15 @@ from app.services.url_mixin import (
     validate_short_url,
     validate_url_owner,
 )
-from app.services.stats import is_accessed_to_stats
+from app.services.stats import is_accessed_to_stats, get_stats
 from app.services.paste.paste import validate_paste_text, validate_paste_language
 from app.database import db, crud
 
 
 bp_pastes = Blueprint("pastes", __name__)
 
-@auth_required
 @bp_pastes.route("/", methods=["GET"])
+@auth_required
 def get_pastes_list(auth_data: AuthData):
     """
     Returns list of pastes. Auth required.
@@ -92,16 +92,10 @@ def get_paste_info(url_hash: str):
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
 
-    remote_addr = get_ip()
-    user_agent = request.user_agent.string
-    referer = request.headers.get("Referer")
-
     crud.url_view.create(
         db=db,
         paste=short_url,
-        ip=remote_addr,
-        referer=referer,
-        user_agent=user_agent,
+        stats=get_stats()
     )
     if short_url.burn_after_read:
         crud.paste_url.delete(db, short_url)
@@ -181,16 +175,10 @@ def paste_index(url_hash: str):
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
 
-    remote_addr = get_ip()
-    user_agent = request.user_agent.string
-    referer = request.headers.get("Referer")
-
     crud.url_view.create(
         db=db,
         paste=short_url,
-        ip=remote_addr,
-        referer=referer,
-        user_agent=user_agent,
+        stats=get_stats(),
     )
     if short_url.burn_after_read:
         crud.paste_url.delete(db, short_url)

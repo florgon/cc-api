@@ -80,8 +80,8 @@ def create_url():
     return api_success(serialize_url(url, include_stats=include_stats))
 
 
-@auth_required
 @bp_urls.route("/", methods=["GET"])
+@auth_required
 def urls_list(auth_data: AuthData):
     """
     Method returns all user's urls. Auth required.
@@ -103,8 +103,8 @@ def get_info_about_url(url_hash: str):
     return api_success(serialize_url(short_url, include_stats=include_stats))
 
 
-@auth_required
 @bp_urls.route("/<url_hash>/", methods=["DELETE"])
+@auth_required
 def delete_short_url(auth_data: AuthData, url_hash: str):
     """
     Method deletes short url. Auth and ownership required.
@@ -171,8 +171,8 @@ def open_short_url(url_hash: str):
     return redirect(short_url.redirect)
 
 
-@auth_required
 @bp_urls.route("/<url_hash>/stats", methods=["DELETE"])
+@auth_required
 def clear_short_url_stats(auth_data: AuthData, url_hash: str):
     """
     Clears url stats. Auth required.

@@ -32,7 +32,7 @@ class Stats:
     """Stats DTO that represents view of url or paste."""
     ip: str
     user_agent: str
-    referer: str
+    referer: str | None
 
 
 def get_stats() -> Stats:
