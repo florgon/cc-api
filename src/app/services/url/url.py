@@ -18,7 +18,6 @@
 import re
 
 from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database.mixins import UrlMixin
 
 
 def validate_url(url: str | None) -> None:
@@ -36,33 +35,3 @@ def validate_url(url: str | None) -> None:
     )
     if pattern.match(url) is None:
         raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "url is invalid!")
-
-
-def validate_short_url(url: UrlMixin | None, allow_expired: bool = False) -> UrlMixin:
-    """
-    Validates short url object and raises ApiErrorException if it is expired/invalid.
-    :param UrlMixin|None url: short url to validate
-    :raises ApiErrorException: when url is invalid
-    """
-    if url is None:
-        raise ApiErrorException(
-            ApiErrorCode.API_ITEM_NOT_FOUND, "url hash is invalid/not specified"
-        )
-
-    if not allow_expired and url.is_expired():
-        raise ApiErrorException(ApiErrorCode.API_FORBIDDEN, "url is expired!")
-
-    return url
-
-
-def validate_url_owner(url: UrlMixin, owner_id: int | None) -> None:
-    """
-    Checks that url is owned by user with owner_id
-    :param UrlMixin url: short url object
-    :param int owner_id: id of owner
-    :raises ApiErrorException: when url is not owned by user
-    """
-    if owner_id != url.owner_id or owner_id is None:
-        raise ApiErrorException(
-            ApiErrorCode.API_FORBIDDEN, "you are not owner of this url!"
-        )
