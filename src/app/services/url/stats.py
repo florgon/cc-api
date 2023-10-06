@@ -22,9 +22,7 @@ from flask import request
 from app.services.request.headers import get_ip
 from app.database import crud
 from app.database.models.url import RedirectUrl
-from app.database.mixins import UrlMixin
 from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.url.url import validate_url_owner
 
 
 def collect_stats_and_add_view(db: SQLAlchemy, short_url: RedirectUrl) -> None:
@@ -60,4 +58,3 @@ def validate_dates_views_value_as(dates_views_value_as: str) -> None:
             ApiErrorCode.API_INVALID_REQUEST,
             "`dates_views_value_as` must be a `percent` or `number`!",
         )
-

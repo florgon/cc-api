@@ -17,9 +17,33 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from dataclasses import dataclass
+
+from flask import request
+
 from app.database.mixins import UrlMixin
 from app.services.url_mixin import validate_url_owner
 from app.services.api.errors import ApiErrorException
+from app.services.request.headers import get_ip
+
+
+@dataclass
+class Stats:
+    """Stats DTO that represents view of url or paste."""
+    ip: str
+    user_agent: str
+    referer: str
+
+
+def get_stats() -> Stats:
+    """
+    Returns Stats for current request.
+    """
+    return Stats(
+        ip=get_ip(),
+        user_agent=request.user_agent.string,
+        referer=request.headers.get("Referer"),
+    )
 
 
 def is_accessed_to_stats(
