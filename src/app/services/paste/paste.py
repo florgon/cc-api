@@ -19,7 +19,13 @@
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 
 
-def validate_paste_text(text: str) -> None:
+def validate_paste_text(text: str | None) -> None:
+    """
+    Skip None value because this function may be used in patch view
+    where text is not required.
+    """
+    if text is None:
+        return
     if len(text) < 10 or len(text) > 4096:
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST,
@@ -28,6 +34,10 @@ def validate_paste_text(text: str) -> None:
 
 
 def validate_paste_language(language: str | None) -> None:
+    """
+    Skip None value because this function may be used in patch view
+    where language is not required.
+    """
     if language is None:
         return
     if len(language) == 0 or len(language) > 4096:

@@ -205,7 +205,7 @@ def get_short_url_stats(url_hash: str):
     validate_referer_views_value_as(referer_views_value_as)
 
     dates_views_value_as = request.args.get("dates_views_value_as", "percent")
-    validate_dates_views_value_as
+    validate_dates_views_value_as(dates_views_value_as)
 
     response = serialize_url_stats(
         short_url, referer_views_value_as, dates_views_value_as

@@ -27,7 +27,6 @@ from app.services.request.auth import (
 )
 from app.services.request.auth_data import AuthData
 from app.services.request.params import get_post_param
-from app.services.request.headers import get_ip
 from app.services.url_mixin import (
     validate_short_url,
     validate_url_owner,
@@ -103,87 +102,45 @@ def get_paste_info(url_hash: str):
     return api_success(serialize_paste(short_url, include_stats=include_stats))
 
 @bp_pastes.route("/<url_hash>/", methods=["DELETE"])
-def delete_paste(url_hash: str):
-    ...
-
-@bp_pastes.route("/<url_hash>/", methods=["PATCH"])
-def patch_paste(url_hash: str):
-    ...
-
-@bp_pastes.route("/<url_hash>/", methods=["GET", "DELETE", "PATCH"])
-def paste_index(url_hash: str):
+@auth_required
+def delete_paste(auth_data: AuthData, url_hash: str):
     """
-    Paste url index resource.
-    Methods:
-        GET: Returns info about paste
-        DELETE: Deletes paste
-        PATCH: Updates paste
+    Deletes paste. Ownership required.
     """
-    _, auth_data = try_query_auth_data_from_request(db=db)
-
-    if request.method == "DELETE":
-        short_url = validate_short_url(
-            crud.paste_url.get_by_hash(url_hash=url_hash), allow_expired=True
-        )
-        validate_url_owner(
-            url=short_url, owner_id=auth_data.user_id if auth_data else None
-        )
-        crud.paste_url.delete(db=db, url=short_url)
-        return Response(status=204)
-
-    if request.method == "PATCH":
-        short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
-        text = get_post_param("text", None)
-        if text is None:
-            pass
-        elif len(text) < 10:
-            raise ApiErrorException(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "Paste text must be at least 10 characters length!",
-            )
-        elif len(text) > 4096:
-            raise ApiErrorException(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "Paste text must be less than 4096 characters length!",
-            )
-        language = get_post_param("language", None)
-        if language is None:
-            pass
-        elif len(language) == 0:
-            raise ApiErrorException(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "Paste language must be at least 1 character length!"
-            )
-        elif len(language) > 20:
-            raise ApiErrorException(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "Paste language must be less then 20 character length!"
-            )
-
-        validate_url_owner(
-            url=short_url, owner_id=auth_data.user_id if auth_data else None
-        )
-        to_update = {k: v for k, v in {
-            "text": text,
-            "language": language,
-        }.items() if v is not None}
-        crud.paste_url.update(db=db, url=short_url, **to_update)
-        return api_success(serialize_paste(short_url, include_stats=True))
-
-    short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
-    include_stats = is_accessed_to_stats(
+    short_url = validate_short_url(
+        crud.paste_url.get_by_hash(url_hash=url_hash), allow_expired=True
+    )
+    validate_url_owner(
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
+    crud.paste_url.delete(db=db, url=short_url)
+    return Response(status=204)
 
-    crud.url_view.create(
-        db=db,
-        paste=short_url,
-        stats=get_stats(),
+@bp_pastes.route("/<url_hash>/", methods=["PATCH"])
+@auth_required
+def patch_paste(auth_data: AuthData, url_hash: str):
+    """
+    Changes paste info (text, language). Auth Required
+    PATCH params:
+        - str `text` - new paste text
+        - str `language` - new paste langauge
+    """
+    short_url = validate_short_url(crud.paste_url.get_by_hash(url_hash=url_hash))
+
+    text = get_post_param("text", None)
+    validate_paste_text(text)
+    language = get_post_param("language", None)
+    validate_paste_language(language)
+
+    validate_url_owner(
+        url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
-    if short_url.burn_after_read:
-        crud.paste_url.delete(db, short_url)
-
-    return api_success(serialize_paste(short_url, include_stats=include_stats))
+    to_update = {k: v for k, v in {
+        "text": text,
+        "language": language,
+    }.items() if v is not None}
+    crud.paste_url.update(db=db, url=short_url, **to_update)
+    return api_success(serialize_paste(short_url, include_stats=True))
 
 
 @bp_pastes.route("/<url_hash>/stats", methods=["GET", "DELETE"])

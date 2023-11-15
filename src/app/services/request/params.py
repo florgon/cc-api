@@ -25,11 +25,16 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 T = TypeVar("T")
 
 
-def get_post_param(name: str, default: str = "", type_: type | None = T) -> T:
+def get_post_param(
+    name: str,
+    default: T | None = "",
+    type_: type[T] | None = None
+) -> T:
     """
     Returns value of post request parameter (from post or from json).
     :param str name: name of parameter
-    :param str default: default value that will return if param not found. defaults to empty string."
+    :param str default: default value that will return if param not found.
+                        defaults to empty string."
     :param type type_: type of result variable.
     :returns: value of param
     """
