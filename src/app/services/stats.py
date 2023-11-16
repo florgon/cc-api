@@ -23,7 +23,7 @@ from flask import request
 
 from app.database.mixins import UrlMixin
 from app.services.url_mixin import validate_url_owner
-from app.services.api.errors import ApiErrorException
+from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.services.request.headers import get_ip
 
 
@@ -66,3 +66,19 @@ def is_accessed_to_stats(
         return False
 
     return True
+
+
+def validate_referer_views_value_as(referer_views_value_as: str) -> None:
+    if referer_views_value_as not in ("percent", "number"):
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`referer_views_value_as` must be a `percent` or `number`!",
+        )
+
+
+def validate_dates_views_value_as(dates_views_value_as: str) -> None:
+    if dates_views_value_as not in ("percent", "number"):
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`dates_views_value_as` must be a `percent` or `number`!",
+        )
