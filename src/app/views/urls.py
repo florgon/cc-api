@@ -40,11 +40,13 @@ from app.services.request.auth import (
     auth_required,
 )
 from app.services.request.auth_data import AuthData
-from app.services.stats import is_accessed_to_stats
+from app.services.stats import (
+    is_accessed_to_stats,
+    validate_dates_views_value_as,
+    validate_referer_views_value_as,
+)
 from app.services.url.stats import (
     collect_stats_and_add_view,
-    validate_referer_views_value_as,
-    validate_dates_views_value_as,
 )
 
 bp_urls = Blueprint("urls", __name__)
