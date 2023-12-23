@@ -103,7 +103,7 @@ def validate_qr_code_quiet_zone(quiet_zone: str) -> None | NoReturn:
     :return: None if successfully, NoReturn (API Error) if not
     """
     if not quiet_zone.isdigit() or int(quiet_zone) > 25:
-        return ApiErrorException(
+        raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST,
             "`quiet_zone` argument must be an integer number in range from 0 to 25!",
         )
