@@ -31,7 +31,7 @@ def serialize_url(
     API_SCHEME = current_app.config["API_SCHEME"]
     API_HOSTNAME = current_app.config["API_HOSTNAME"]
     QR_PATH = url_for("urls.generate_qr_code_for_url", url_hash=url.hash)
-    STATS_PATH = url_for("urls.short_url_stats", url_hash=url.hash)
+    STATS_PATH = url_for("urls.get_short_url_stats", url_hash=url.hash)
 
     serialized_url = {
         "id": url.id,

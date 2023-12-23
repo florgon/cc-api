@@ -25,11 +25,16 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 T = TypeVar("T")
 
 
-def get_post_param(name: str, default: str = "", type_: type | None = T) -> T:
+def get_post_param(
+    name: str,
+    default: T | None = "",
+    type_: type[T] | None = None
+) -> T:
     """
     Returns value of post request parameter (from post or from json).
     :param str name: name of parameter
-    :param str default: default value that will return if param not found. defaults to empty string."
+    :param str default: default value that will return if param not found.
+                        defaults to empty string."
     :param type type_: type of result variable.
     :returns: value of param
     """
@@ -42,7 +47,7 @@ def get_post_param(name: str, default: str = "", type_: type | None = T) -> T:
         param = _parse_as_bool(param)
     if type_ == int:
         # Int conversion can be changed
-        param = pydantic.parse_obj_as(int, param)
+        param = pydantic.TypeAdapter(int).validate_python(param)
 
     return param
 
@@ -55,7 +60,9 @@ def _parse_as_bool(param: str) -> bool:
     :raises ApiErrorException: if param is invalid to parse.
     """
     try:
-        return pydantic.parse_obj_as(bool, param)
+        return pydantic.TypeAdapter(bool).validate_python(param)
     except pydantic.ValidationError as exc:
         # TODO: Return param name in error instead of 'param'
-        raise ApiErrorException(ApiErrorCode.API_INVALID_REQUEST, "param is invalid bool!") from exc
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST, "param is invalid bool!"
+        ) from exc

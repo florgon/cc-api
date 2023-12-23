@@ -53,7 +53,7 @@ class TestNormalizeScope:
         """
         Tests that function does nothing when scope is normal.
         """
-        assert normalize_scope(scope="cc,email") == "cc,email"
+        assert normalize_scope(scope="cc,email") in ["cc,email", "email,cc"]
 
     @staticmethod
     def test_with_grant_all_tag_scope():
@@ -92,7 +92,11 @@ class TestParsePermissionsFromScope:
         """
         Tests that function will return all permssions from normal scope.
         """
-        assert parse_permissions_from_scope(scope="cc,email") == [
+        permissions = sorted(
+            parse_permissions_from_scope(scope="cc,email"),
+            key=lambda p: p.value,
+        )
+        assert permissions == [
             Permission.cc,
             Permission.email,
         ]

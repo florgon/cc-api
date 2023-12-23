@@ -23,24 +23,21 @@ from app.database.models.url import RedirectUrl, PasteUrl
 from app.database.models.url_view import UrlView
 from app.database.models.referer import Referer
 from app.database import crud
+from app.services.stats import Stats
 
 
-def create( # pylint: disable=too-many-arguments
+def create(  # pylint: disable=too-many-arguments
     db: SQLAlchemy,
-    ip: str,
-    user_agent: str,
+    stats: Stats,
     url: RedirectUrl | None = None,
     paste: PasteUrl | None = None,
-    referer: str | None = None,
 ) -> UrlView:
     """
     Adds url view to `url` with passed params
     :param SQLAlchemy db: database object
-    :param str ip: ipv4 user address
-    :param str user_agent: user agent from `User-Agent` header
+    :param Stats stats: Stats DTO
     :param RedirectUrl|None url: viewed url
     :param PasteUrl|None paste: viewed paste
-    :param str|None referer: referer from `Referer` header
     :return: created url view
     :rtype: UrlView
     :raises TypeError: if passed both url
@@ -48,14 +45,16 @@ def create( # pylint: disable=too-many-arguments
     if (url, paste).count(None) != 1:
         raise TypeError("Pass only url or only paste (not both)!")
 
-    user_agent_object = crud.user_agent.get_or_create(db=db, user_agent=user_agent)
+    user_agent_object = crud.user_agent.get_or_create(
+        db=db, user_agent=stats.user_agent
+    )
     referer_object_id = None
-    if referer:
-        referer_object = crud.referer.get_or_create(db=db, referer=referer)
+    if stats.referer:
+        referer_object = crud.referer.get_or_create(db=db, referer=stats.referer)
         referer_object_id = referer_object.id
 
     url_view = UrlView(
-        ip=ip,
+        ip=stats.ip,
         user_agent_id=user_agent_object.id,
         url=url,
         paste=paste,

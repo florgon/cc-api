@@ -15,227 +15,201 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from io import BytesIO
 
 from flask import Blueprint, Response, request, redirect, url_for
-import pyqrcode
 
 from app.serializers.url import serialize_url, serialize_urls
+from app.serializers.url_stats import serialize_url_stats
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.request.params import get_post_param
-from app.services.request.headers import get_ip
+from app.services.qr import (
+    validate_qr_result_type,
+    validate_qr_code_scale,
+    validate_qr_code_quiet_zone,
+    generate_qr_code,
+)
 from app.database import crud, db
-from app.services.url import (
-    is_accessed_to_stats,
+from app.services.url_mixin import (
     validate_short_url,
-    validate_url,
     validate_url_owner,
 )
+from app.services.url.url import validate_url
 from app.services.request.auth import (
-    query_auth_data_from_request,
     try_query_auth_data_from_request,
+    auth_required,
+)
+from app.services.request.auth_data import AuthData
+from app.services.stats import (
+    is_accessed_to_stats,
+    validate_dates_views_value_as,
+    validate_referer_views_value_as,
+)
+from app.services.url.stats import (
+    collect_stats_and_add_view,
 )
 
 bp_urls = Blueprint("urls", __name__)
 
 
-@bp_urls.route("/", methods=["POST", "GET"])
-def urls_index():
+@bp_urls.route("/", methods=["POST"])
+def create_url():
     """
-    URLs index,
-    Methods:
-        POST - Creates short url and returns created url object.
-        GET - List all urls.
+    Method creates new short url.
+    POST params:
+     - str `url` -- long url.
+     - bool `stats_is_public` (auth required) -- Make stats awailable for all.
     """
+    long_url = get_post_param("url")
+    validate_url(long_url)
 
-    if request.method == "POST":
-        # Create new URL.
-        long_url = get_post_param("url")
-        validate_url(long_url)
+    stats_is_public = get_post_param("stats_is_public", "False", bool)
 
-        stats_is_public = get_post_param("stats_is_public", "False", bool)
+    is_authorized, auth_data = try_query_auth_data_from_request(db=db)
+    if is_authorized and auth_data:
+        owner_id = auth_data.user_id
+    else:
+        owner_id = None
 
-        is_authorized, auth_data = try_query_auth_data_from_request(db=db)
-        if is_authorized and auth_data:
-            owner_id = auth_data.user_id
-        else:
-            owner_id = None
+    url = crud.redirect_url.create_url(
+        db=db,
+        redirect_url=long_url,
+        stats_is_public=stats_is_public,
+        owner_id=owner_id,
+    )
 
-        url = crud.redirect_url.create_url(
-            db=db,
-            redirect_url=long_url,
-            stats_is_public=stats_is_public,
-            owner_id=owner_id,
-        )
+    include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
+    return api_success(serialize_url(url, include_stats=include_stats))
 
-        include_stats = is_accessed_to_stats(url=url, owner_id=owner_id)
-        return api_success(serialize_url(url, include_stats=include_stats))
 
-    auth_data = query_auth_data_from_request(db=db)
+@bp_urls.route("/", methods=["GET"])
+@auth_required
+def urls_list(auth_data: AuthData):
+    """
+    Method returns all user's urls. Auth required.
+    """
     urls = crud.redirect_url.get_by_owner_id(owner_id=auth_data.user_id)
     return api_success(serialize_urls(urls, include_stats=False))
 
 
-@bp_urls.route("/<url_hash>/", methods=["GET", "DELETE", "PATCH"])
-def short_url_index(url_hash: str):
+@bp_urls.route("/<url_hash>/", methods=["GET"])
+def get_info_about_url(url_hash: str):
     """
-    Short url index resource.
-    Methods:
-        GET: Returns info about short url
-        DELETE: Deletes url
-        PATCH: Updates url
+    Method returns info about short url. Also it returns links to stats, if user is owner of this url.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
     _, auth_data = try_query_auth_data_from_request(db=db)
-
-    if request.method == "DELETE":
-        validate_url_owner(
-            url=short_url, owner_id=auth_data.user_id if auth_data else None
-        )
-        crud.redirect_url.delete(db=db, url=short_url)
-        return Response(status=204)
-
-    if request.method == "PATCH":
-        raise ApiErrorException(
-            ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
-        )
-
     include_stats = is_accessed_to_stats(
         url=short_url, owner_id=auth_data.user_id if auth_data else None
     )
     return api_success(serialize_url(short_url, include_stats=include_stats))
 
 
+@bp_urls.route("/<url_hash>/", methods=["DELETE"])
+@auth_required
+def delete_short_url(auth_data: AuthData, url_hash: str):
+    """
+    Method deletes short url. Auth and ownership required.
+    """
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
+    validate_url_owner(url=short_url, owner_id=auth_data.user_id)
+    crud.redirect_url.delete(db=db, url=short_url)
+    return Response(status=204)
+
+
+@bp_urls.route("/<url_hash>/", methods=["PATCH"])
+def patch_short_url(url_hash: str):
+    raise ApiErrorException(
+        ApiErrorCode.API_NOT_IMPLEMENTED, "Patching urls is not implemented yet!"
+    )
+
+
 @bp_urls.route("/<url_hash>/qr", methods=["GET"])
 def generate_qr_code_for_url(url_hash: str):
     """
     Generates QR code image for hash url.
+    GET params:
+     - str `result_type` - Type of result. May be `svg`, `png` or `txt`. Defaults to `svg`.
+     - int `scale` - Image scaling. May be integer from 1 to 8. Defaults to 3.
+     - int `quiet_zone` - White border around qr-code. May be from 0 to 25. Defaults to 4.
 
     TODO: Fix caching to not generate new QR code every time.
     TODO: Custom logo for QR.
     """
-    response_as = request.args.get("as", "svg")
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-    if response_as not in ("svg", "txt", "png"):
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Expected `as` to be `svg`, `png` or `txt`!",
-        )
 
-    # Create QR Code from redirect to.
-    qr_code = pyqrcode.create(
-        url_for(
+    result_type = request.args.get("result_type", "svg")
+    validate_qr_result_type(result_type)
+
+    scale = request.args.get("scale", "3")
+    validate_qr_code_scale(scale)
+    scale = int(scale)
+
+    quiet_zone = request.args.get("quiet_zone", "4")
+    validate_qr_code_quiet_zone(quiet_zone)
+    quiet_zone = int(quiet_zone)
+
+    return generate_qr_code(
+        text=url_for(
             "urls.open_short_url",
             url_hash=short_url.hash,
             _external=True,
             _scheme="https",
-        )
+        ),
+        result_type=result_type,
+        scale=scale,
+        quiet_zone=quiet_zone,
     )
-
-    # Export QR to the stream or pass directly.
-    scale = request.args.get("scale", "3")
-    if not scale.isdigit() or scale == "0" or int(scale) > 8:
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`scale` argument must be an integer number in range from 1 to 8!",
-        )
-    scale = int(scale)
-
-    quiet_zone = request.args.get("quiet_zone", "4")
-    if not quiet_zone.isdigit() or int(quiet_zone) > 25:
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`quiet_zone` argument must be an integer number in range from 0 to 25!",
-        )
-    quiet_zone = int(quiet_zone)
-
-    qr_code_stream = BytesIO() if response_as != "txt" else None
-    if response_as == "svg":
-        qr_code.svg(qr_code_stream, scale=scale, quiet_zone=quiet_zone)
-    elif response_as == "png":
-        qr_code.png(qr_code_stream, scale=scale, quiet_zone=quiet_zone)
-
-    if qr_code_stream is not None:
-        # Headers to not cache image.
-        headers_no_cache = {
-            "Content-Type": "image/svg+xml" if response_as == "svg" else "image/png",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
-            "Expires": "0",
-            "Content-Length": str(qr_code_stream.getbuffer().nbytes),
-        }
-        return qr_code_stream.getvalue(), 200, headers_no_cache
-
-    # Plain text.
-    return qr_code.text()
 
 
 @bp_urls.route("/<url_hash>/open", methods=["GET"])
 def open_short_url(url_hash: str):
     """
     Redirects user to long redirect url.
+    Collects IP address, referer and user agents for statistics.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
-
-    remote_addr = get_ip()
-    user_agent = request.user_agent.string
-    referer = request.headers.get("Referer")
-    crud.url_view.create(
-        db=db, url=short_url, ip=remote_addr, user_agent=user_agent, referer=referer
-    )
-
+    collect_stats_and_add_view(db=db, short_url=short_url)
     return redirect(short_url.redirect)
 
 
-@bp_urls.route("/<url_hash>/stats", methods=["GET", "DELETE"])
-def short_url_stats(url_hash: str):
+@bp_urls.route("/<url_hash>/stats", methods=["DELETE"])
+@auth_required
+def clear_short_url_stats(auth_data: AuthData, url_hash: str):
+    """
+    Clears url stats. Auth required.
+    If successfully cleared - return 204 response with empty body.
+    """
+    short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
+    validate_url_owner(short_url, owner_id=auth_data.user_id)
+    crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
+    return Response(status=204)
+
+
+@bp_urls.route("/<url_hash>/stats", methods=["GET"])
+def get_short_url_stats(url_hash: str):
     """
     Returns stats for short url.
-    Methods:
-        GET: get url statistics
-        DELETE: clear url statistics
+    GET params:
+     - str `referer_views_value_as` - how to represent referers views.
+        May be `percent`, `number`. Defaults to `percent`.
+     - str `dates_views_value_as` - how to represent dates views.
+        May be `percent`, `number`. Defaults to `percent`.
     """
     short_url = validate_short_url(crud.redirect_url.get_by_hash(url_hash=url_hash))
 
-    if request.method == "DELETE":
-        auth_data = query_auth_data_from_request(db=db)
-        validate_url_owner(short_url, owner_id=auth_data.user_id)
-        crud.url_view.delete_by_url_id(db=db, url_id=short_url.id)
-        return Response(status=204)
-
-    if not short_url.stats_is_public:
-        auth_data = query_auth_data_from_request(db=db)
-        validate_url_owner(short_url, owner_id=auth_data.user_id)
+    is_authorized, auth_data = try_query_auth_data_from_request(db=db)
+    is_accessed_to_stats(
+        short_url, owner_id=auth_data.user_id if is_authorized else None, fatal=True
+    )
 
     referer_views_value_as = request.args.get("referer_views_value_as", "percent")
-    if referer_views_value_as not in ("percent", "number"):
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`referer_views_value_as` must be a `percent` or `number`!",
-        )
-    referers = crud.url_view.get_referers(
-        db=db,
-        url_id=short_url.id,
-        value_as=referer_views_value_as,
-    )
+    validate_referer_views_value_as(referer_views_value_as)
 
     dates_views_value_as = request.args.get("dates_views_value_as", "percent")
-    if dates_views_value_as not in ("percent", "number"):
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`dates_views_value_as` must be a `percent` or `number`!",
-        )
-    dates = crud.url_view.get_dates(
-        db=db,
-        url_id=short_url.id,
-        value_as=dates_views_value_as,
+    validate_dates_views_value_as(dates_views_value_as)
+
+    response = serialize_url_stats(
+        short_url, referer_views_value_as, dates_views_value_as
     )
-
-    response = {"views": {"total": short_url.views.count()}}
-    if referers:
-        response["views"]["by_referers"] = referers
-    if dates:
-        response["views"]["by_dates"] = dates
-
     return api_success(response)
