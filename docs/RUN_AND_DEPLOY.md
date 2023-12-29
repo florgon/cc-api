@@ -35,6 +35,14 @@ To run this application with docker, files `Dockerfile`, `docker-compose.yml` ar
 
 database service uses **Postgres** as a main DBMS.
 
+#### Configuration
+
+Config for docker stored in `src/.env` file. There are some settings you should set:
+
+**COMPOSE_PROJECT_NAME** - project name. I recommend set it to "florgon-cc-api".
+
+**COMPOSE_EXPOSED_PORT** - API port. This docs assumes that port is 80 (default http port)
+
 ### Nginx
 
 This API doesn't come with nginx configuration.
