@@ -4,7 +4,7 @@ Contains views for accessing the source code.
 ## GET /v1/source/
 Request params: None
 
-Response format:
+Response body format:
 ```json
 {
     "license": "AGPLv3-or-later",
