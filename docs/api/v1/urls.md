@@ -15,6 +15,12 @@ Response body format:
 }
 ```
 
+Response HTTP codes:
+
+- `200` - success
+- `401` - auth required
+- `400` - auth token problems
+
 Example request:
 ```
 curl -H "Authorization: <auth token>" http://localhost/v1/urls/
@@ -34,6 +40,11 @@ Response body format:
 }
 ```
 
+Response HTTP codes:
+
+- `200` - success
+- `400` - invalid request
+
 Example request:
 ```
 curl -X POST -d "url=gnu.org" http://localhost/v1/urls/
@@ -51,6 +62,11 @@ Response body format:
 }
 ```
 
+Response HTTP codes:
+- `200` - success
+- `404` - url not found
+- `400` - auth token problems
+
 Example request:
 ```
 curl http://localhost/v1/urls/abc123/
@@ -64,6 +80,13 @@ Deletes short url with <url_hash>.
 Request params: None
 
 If successfully deleted, returns *204 HTTP response** with empty body.
+
+Response HTTP codes:
+- `204` - success
+- `400` - auth token problems
+- `401` - auth required
+- `403` - forbidden (you are not owner)
+- `404` - url not found
 
 Example request:
 ```
@@ -83,6 +106,11 @@ GET request params:
 
 Response body: `png` or `svg` image, or plain text
 
+Response HTTP codes:
+- `200` - success
+- `400` - invalid request
+- `404` - url not found
+
 Example request:
 ```
 curl http://localhost/v1/urls/abc123/qr
@@ -91,15 +119,35 @@ curl http://localhost/v1/urls/abc123/qr
 ## GET /v1/urls/<url_hash>/open
 Redirects user to long url.
 
+Response HTTP codes:
+- `302` - success, redirect
+- `404` - url not found
+
 ## GET /v1/urls/<url_hash>/stats
 **STATS ACCESS REQUIRED**
 
 Return statistics for short url with <url_hash>.
 
+Response body format:
+```json
+StatsModel()
+```
+
+Response HTTP codes:
+- `200` - success
+- `404` - url not found
+
 ## DELETE /v1/urls/<url_hash>/stats
-**OWNERSHIP REQUIRED**
+**AUTH REQUIRED**, **OWNERSHIP REQUIRED**
 
 Cleares statistics for short url with <url_hash>.
 
-If successfully cleared, return *204 HTTP response with empty body
+If successfully cleared, return *204 HTTP response* with empty body
+
+Response HTTP codes:
+- `204` - success
+- `400` - auth token problems
+- `401` - auth required
+- `403` - forbidden (you are not owner)
+- `404` - url not found
 
