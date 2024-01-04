@@ -16,6 +16,9 @@ Response body format:
 
 If you fork this repo, you should edit *repository* and *download* properties.
 
+Response HTTP codes:
+- `200` - success
+
 Example request:
 ```
 curl http://localhost/v1/source/

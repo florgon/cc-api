@@ -11,6 +11,9 @@ Response body format:
 }
 ```
 
+Response HTTP codes:
+- `200` - success
+
 Example request:
 ```
 curl http://localhost/v1/utils/serverTime
