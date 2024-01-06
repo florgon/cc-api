@@ -41,7 +41,6 @@ Response body format:
 ```
 
 Response HTTP codes:
-
 - `200` - success
 - `400` - invalid request
 
@@ -128,6 +127,8 @@ Response HTTP codes:
 
 Return statistics for short url with <url_hash>.
 
+Request params: None
+
 Response body format:
 ```json
 StatsModel()
@@ -136,6 +137,11 @@ StatsModel()
 Response HTTP codes:
 - `200` - success
 - `404` - url not found
+
+Example request:
+```
+curl http://localhost/v1/urls/abc123/stats
+```
 
 ## DELETE /v1/urls/<url_hash>/stats
 **AUTH REQUIRED**, **OWNERSHIP REQUIRED**
@@ -151,3 +157,7 @@ Response HTTP codes:
 - `403` - forbidden (you are not owner)
 - `404` - url not found
 
+Example request:
+```
+curl -X DELETE -H "Authorization: <auth token>" http://localhost/v1/pastes/abc123/stats
+```
