@@ -30,9 +30,9 @@ Creates new paste.
 
 POST request params:
  - `text` <string> - Text of paste.
- - `language` <string> - Programming language of paste.
- - `stats_is_public` <bool> - Make paste stats public. Defaults to False.
- - `burn_after_read` <bool> - Paste will be deleted after first reading. Defaults to False.
+ - `language` <string> (optional) - Programming language of paste.
+ - `stats_is_public` <bool> (optional) - Make paste stats public. Defaults to False.
+ - `burn_after_read` <bool> (optional) - Paste will be deleted after first reading. Defaults to False.
 
 Response body format:
 ```json
@@ -100,8 +100,8 @@ curl -H "Authorization: <auth token>" -X DELETE http://localhost/v1/pastes/abc12
 Edits text or language of paste with <paste_hash>.
 
 PATCH request params:
-- `text` <string> - new paste text
-- `language` <string> - new paste programming language
+- `text` <string> (optional) - new paste text
+- `language` <string> (optional) - new paste programming language
 
 Response body format:
 ```json

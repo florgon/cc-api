@@ -31,7 +31,7 @@ Creates new short url.
 
 POST request params:
 - `url` <string> -- Long url.
-- `stats_is_public` <boolean> (auth required) -- Make stats awailable for all.
+- `stats_is_public` <boolean> (auth required) (optional) -- Make stats awailable for all.
 
 Response body format:
 ```json
@@ -99,9 +99,9 @@ This method is not implemented yet.
 Returns qr-code image of short url with <url_hash>.
 
 GET request params:
- - `result_type` <string> - Type of result. May be `svg`, `png` or `txt`. Defaults to `svg`.
- - `scale` <int> - Image scaling. May be integer from 1 to 8. Defaults to 3.
- - `quiet_zone` <int> - White border around qr-code. May be from 0 to 25. Defaults to 4.
+ - `result_type` <string> (optional) - Type of result. May be `svg`, `png` or `txt`. Defaults to `svg`.
+ - `scale` <int> (optional) - Image scaling. May be integer from 1 to 8. Defaults to 3.
+ - `quiet_zone` <int> (optional) - White border around qr-code. May be from 0 to 25. Defaults to 4.
 
 Response body: `png` or `svg` image, or plain text
 
