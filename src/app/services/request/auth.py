@@ -25,6 +25,7 @@ from requests.exceptions import JSONDecodeError
 
 from flask import current_app, request as flask_request
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash
 
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.request.auth_data import AuthData
@@ -71,10 +72,40 @@ def query_auth_data_from_request(db: SQLAlchemy) -> AuthData:
     Queries authentication data from request (from request token).
     :param db: Database session.
     """
+    if not flask_request.authorization:
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_REQUIRED,
+            "Basic auth required!",
+        )
 
-    # Get token from request and query data from it as external token.
-    token = get_token_from_request()
-    return query_auth_data_from_token(db=db, token=token)
+    username = flask_request.authorization.username
+    if not username:
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_REQUIRED,
+            "Basic auth username required!",
+        )
+    password = flask_request.authorization.password
+    if not password:
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_REQUIRED,
+            "Basic auth password required!",
+        )
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN,
+            "Username is invalid!",
+        )
+    if not check_password_hash(user.password, password):
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN,
+            "Password is invalid!",
+        )
+
+    return AuthData(user=user)
+
+
 
 
 def try_query_auth_data_from_request(db: SQLAlchemy) -> tuple[bool, AuthData | None]:
