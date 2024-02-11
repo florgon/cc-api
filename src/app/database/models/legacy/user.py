@@ -21,11 +21,10 @@ from app.database.mixins import CommonMixin, TimestampMixin
 
 class User(db.Model, CommonMixin, TimestampMixin):
     """
-    Local User model
+    Local User with requested from SSO server `user_id`
     """
 
-    username = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(1000), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False, unique=True)
 
     urls = db.relationship("RedirectUrl", backref="user", lazy="dynamic", uselist=True)
     pastes = db.relationship("PasteUrl", backref="user", lazy="dynamic", uselist=True)

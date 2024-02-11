@@ -1,5 +1,5 @@
 """
-    Provides local User class.
+    DTO for authentication request.
     Copyright (C) 2022-2023 Stepan Zubkov <stepanzubkov@florgon.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -15,17 +15,23 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from app.database import db
-from app.database.mixins import CommonMixin, TimestampMixin
+
+from app.services.permissions import Permission
+from app.database.models.user import User
 
 
-class User(db.Model, CommonMixin, TimestampMixin):
-    """
-    Local User model
-    """
+class AuthData:
+    """DTO for authenticated request."""
 
-    username = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(1000), nullable=False)
+    user_id: int
+    permissions: list[Permission]
 
-    urls = db.relationship("RedirectUrl", backref="user", lazy="dynamic", uselist=True)
-    pastes = db.relationship("PasteUrl", backref="user", lazy="dynamic", uselist=True)
+    def __init__(self, user_id: int, permissions: list[Permission], user: User) -> None:
+        """
+        :param int user_id: User index.
+        :param list[Permission] permissions: List of permissions.
+        :param User user: user object
+        """
+        self.user_id = user_id
+        self.user = user
+        self.permissions = permissions
