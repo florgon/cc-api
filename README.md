@@ -7,6 +7,8 @@
 
 RESTful API for Florgon url shortener && paste manager (Florgon CC API). Integrated with Florgon SSO. ***100% free software***
 
+**WARNING!** This version is experimental and may be not comfortable to user. This version contains basic auth procedure instead of Florgon SSO (independent auth). This version is temporary, because basic auth is not secure.
+
 ## I want to test it!
 
 API deployed and used in production [here](https://api-cc.florgon.com/v1) (API endpoint).
