@@ -59,7 +59,7 @@ class UrlMixin:
     )
     is_deleted = db.Column(db.Boolean, default=False)
     stats_is_public = db.Column(db.Boolean, default=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     @property
     def hash(self) -> str:  # pylint: disable=redefined-builtin
